@@ -45,7 +45,7 @@ label.k{font-size:.9rem;display:flex;gap:6px;align-items:center}
 input[type=range]{accent-color:var(--acc)}
 #stage{height:min(46vh,360px);overflow-y:auto;overscroll-behavior:contain}
 .cue{--c:#cfcfdc;padding:8px 12px;border-left:5px solid var(--c);border-radius:0 8px 8px 0;margin:6px 0;color:var(--mute)}
-.cue b{font:600 12.8px Syne,system-ui,sans-serif;display:inline-block;background:var(--c);color:#1b1830;border-radius:999px;padding:1px 10px;margin-bottom:3px}
+.cue b{font:600 calc(12.8px*var(--tx,1)) Syne,system-ui,sans-serif;display:inline-block;background:var(--c);color:#1b1830;border-radius:999px;padding:1px 10px;margin-bottom:3px}
 .cue span{display:block}
 .cue span .pf{display:inline-block}
 .cue.cur{background:var(--hi);background:color-mix(in srgb,var(--c) 30%,var(--panel));color:var(--ink);font-size:1.15em}
@@ -54,9 +54,15 @@ input[type=range]{accent-color:var(--acc)}
 #status{font:600 .95rem var(--fh);margin:0 0 8px;min-height:1.6em}
 #prompter{position:sticky;bottom:0;background:var(--panel);border-top:4px solid var(--c,var(--acc));padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));margin-top:12px}
 #prompter .in{max-width:720px;margin:0 auto}
-#prompter .hd{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;font:600 .9rem var(--fh);color:var(--mute)}
+#prompter .hd{display:flex;justify-content:flex-start;column-gap:16px;align-items:center;flex-wrap:wrap;gap:8px;font:600 .9rem var(--fh);color:var(--mute)}
+#prompter .hd>span:last-child{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start}
 #prompter .hd button{padding:5px 10px}
+#prompter #hide{min-width:6.6em}
+#prompter .hd button[hidden]{display:inline-block!important;visibility:hidden}
 #ptxt{margin:.3em 0 0;height:var(--ph,4.8em);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;word-break:break-word;scroll-behavior:smooth}
+#prompter.min .in{display:none}
+#prompter.min{padding-top:0;padding-bottom:calc(2px + env(safe-area-inset-bottom,0px))}
+#prompter.min #grip{height:24px;margin:0 -16px}
 #grip{height:20px;margin:-10px -16px 2px;cursor:ns-resize;touch-action:none;display:flex;align-items:center;justify-content:center}
 #grip::before{content:"";width:52px;height:5px;border-radius:3px;background:var(--line)}
 #grip:hover::before,#grip:focus-visible::before{background:var(--c,var(--acc))}
@@ -70,7 +76,21 @@ input[type=range]{accent-color:var(--acc)}
 #chars .sels{display:flex;flex-wrap:wrap;gap:8px}
 #chars .volr{display:flex;align-items:center;gap:10px;align-self:stretch}   /* volume + haut-parleur : la barre s'étire du début des menus jusqu'au haut-parleur */
 #chars .volr .vol{flex:1;width:auto;min-width:0}
-@media (max-width:640px){#chars li{grid-template-columns:26px 18px 1fr}#chars .ctl{grid-column:1/-1}}
+@media (max-width:640px){
+  /* mobile : 3 lignes par personnage — (pastille, rôle, nom, crayon, poubelle) / (deux menus côte à côte) / (volume + haut-parleur) */
+  main{padding-left:12px;padding-right:12px}
+  section{padding:14px}
+  .sub{padding-left:10px;padding-right:10px}
+  #chars{--iconbtn-w:40px}
+  #chars li{grid-template-columns:26px 18px minmax(0,1fr) auto;align-items:center;gap:8px 10px}
+  #chars .rd{margin-top:0}
+  #chars .nmcol{display:contents}
+  #chars .nm{grid-column:3;min-width:0}
+  #chars .acts{grid-column:4;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+  #chars .ctl{grid-column:1/-1;align-self:stretch;justify-self:stretch;align-items:stretch;width:100%}
+  #chars .sels{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+  #chars .sels select{width:100%;min-width:0}
+}
 /* Boutons d'action d'une ligne : une seule variable de hauteur pilote Écouter, Modifier et Supprimer ; la largeur de chacun a sa propre variable */
 #chars{--rowbtn-h:34px;--listen-w:78px;--iconbtn-w:51px}
 #chars .ic,#chars .listen{height:var(--rowbtn-h);box-sizing:border-box;padding:0;line-height:0;border-radius:8px;flex:none;display:inline-flex;align-items:center;justify-content:center}
@@ -113,6 +133,8 @@ input[type=range]{accent-color:var(--acc)}
 #linesl li.edl .lid{border-color:var(--acc)}
 /* ascenseurs fins et discrets (panneau du bas + zone de répétition), décollés du texte */
 #ptxt,#stage{font-family:"Source Serif 4",Georgia,serif;font-size:18px;padding-right:16px;scrollbar-gutter:stable}
+#stage{font-size:calc(18px*var(--tx,1))}
+#prompter{zoom:var(--tp,1)}
 #ptxt::-webkit-scrollbar,#stage::-webkit-scrollbar{width:7px}
 #ptxt::-webkit-scrollbar-track,#stage::-webkit-scrollbar-track{background:transparent}
 #ptxt::-webkit-scrollbar-thumb,#stage::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--mute) 40%,transparent);border-radius:999px}
@@ -211,7 +233,8 @@ body.reh #gear2 svg{width:20px;height:20px;display:block}
 body.reh #status{margin-top:0;margin-bottom:6px}
 body.reh #stage{flex:1 1 auto;height:auto;min-height:80px}
 body.reh #s3>.row{flex:none;margin-top:8px}
-body.reh #more{flex:none;max-height:38vh;overflow-y:auto}
+body.reh #more{flex:none}
+body.reh #more[open] #morein{position:fixed;left:14px;right:14px;top:54px;max-width:720px;margin:0 auto;z-index:25;max-height:max(120px,calc(100dvh - var(--pb,160px) - 250px));overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 14px 10px;box-shadow:0 8px 28px rgba(0,0,0,.28)}
 body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 @media (prefers-reduced-motion:no-preference){.cue.cur{transition:background .2s}}
 </style>
@@ -290,6 +313,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
       <button id="restart">Recommencer</button>
     </div>
     <details id="more" open><summary>Position, vitesse, reconnaissance vocale</summary>
+    <div id="morein">
     <div class="row"><label class="k" style="flex:1">Position <input type="range" id="pos" min="0" value="0" style="flex:1"></label></div>
     <div class="row"><label class="k">Vitesse <input type="range" id="rate2" min="0.5" max="1.3" step="0.05" value="1"><output id="rv2">1,00×</output></label></div>
     <div class="asrbox">
@@ -304,6 +328,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
     </div>
     <p class="tip" id="asrnote"></p>
     <p class="lead" style="margin-bottom:0">Quand c’est ton tour, dis ta réplique à voix haute, puis appuie sur « Suivante » ou sur la flèche droite.</p>
+    </div>
     </details>
   </section>
   </div>
@@ -324,7 +349,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
           <select id="k_font"><option value="default">Par défaut</option><option value="arial">Arial</option><option value="helvetica">Helvetica Neue</option><option value="verdana">Verdana</option><option value="trebuchet">Trebuchet MS</option></select></label>
           <p class="tip">Change la police des boutons, menus et textes de l’interface (si elle est installée sur ton appareil, sinon une police voisine est utilisée). Le texte de la zone de répétition et de « Ta prochaine réplique » ne change pas.</p></div>
         <div class="sl"><label for="k_ui">Taille de la police <output id="o_ui"></output></label>
-          <input type="range" id="k_ui" min="80" max="140" step="5">
+          <input type="range" id="k_ui" min="30" max="140" step="5">
           <p class="tip">Agrandit ou réduit les boutons, menus et textes de l’interface (le texte de répétition n’est pas touché).</p></div>
       </details>
     </div>
@@ -339,6 +364,14 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
           <p class="tip">Nombre de répliques visibles jusqu’à la réplique en cours (de 2 à 20, ou toutes). Les plus anciennes restent accessibles en faisant défiler la zone. Sur un très long script, « Toutes » alourdit légèrement l’affichage.</p></div>
         <div class="sl"><label class="k" style="justify-content:flex-start;display:flex"><input type="checkbox" id="k_ahead"> Afficher aussi les répliques à venir</label>
           <p class="tip">Les répliques de tes partenaires sont déjà présentes sous la réplique en cours (on peut faire défiler pour les lire). Les tiennes restent masquées. Le même nombre de répliques est affiché après la réplique en cours.</p></div>
+      </details>
+      <details class="sub" open><summary>Tailles</summary>
+        <div class="sl"><label for="k_txt">Texte de la zone de répétition <output id="o_txt"></output></label>
+          <input type="range" id="k_txt" min="60" max="200" step="5">
+          <p class="tip">Taille des répliques qui défilent pendant la répétition.</p></div>
+        <div class="sl"><label for="k_ptx">Volet « Ta prochaine réplique » <output id="o_ptx"></output></label>
+          <input type="range" id="k_ptx" min="40" max="140" step="5">
+          <p class="tip">Taille du texte et des boutons du volet du bas.</p></div>
       </details>
     </div>
     <div role="tabpanel" id="pan-voc" aria-labelledby="tab-voc" class="pan" hidden>
@@ -402,14 +435,14 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 </dialog>
 
 <div id="prompter" hidden>
-  <div id="grip" role="separator" aria-orientation="horizontal" tabindex="0" aria-label="Redimensionner le panneau de la prochaine réplique" title="Glisse pour agrandir ou réduire (double-clic : taille d’origine)"></div>
+  <div id="grip" role="separator" aria-orientation="horizontal" tabindex="0" aria-label="Redimensionner le panneau de la prochaine réplique" title="Glisse pour agrandir ou réduire, jusqu’à ne laisser qu’une poignée ; appuie pour replier ou déplier (double-clic : taille d’origine)"></div>
   <div class="in">
     <div class="hd"><span>Ta prochaine réplique</span>
       <span>
+        <button id="hide" aria-pressed="false">Masquer</button>
         <button id="hear" title="Écoute la réplique entière, ou le texte sélectionné">Écouter</button>
         <button id="hint" title="Lit les premiers mots, trois de plus à chaque appui">Souffler</button>
         <button id="peek" title="Affiche les mots de ta réplique un par un, un de plus à chaque appui">Indice</button>
-        <button id="hide" aria-pressed="false">Masquer</button>
       </span></div>
     <p id="ptxt"></p>
     <p class="tip" id="heard"></p>
@@ -421,7 +454,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché à la suite : v0.1.4.62 */
-const VERSION='0.1.4',BUILD=69;
+const VERSION='0.2.0',BUILD=72;
 const VFULL=VERSION+'.'+BUILD;$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+BUILD;document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
@@ -576,7 +609,7 @@ $('#resume').onclick=()=>{startFrom=resumeAt;$('#start').click();};
 renderLib();
 
 /* ---------- Paramètres (communs à tous les scripts, enregistrés dans ce navigateur) ---------- */
-const SETDEF={endSent:1.35,endRep:0.5,turnStart:0.35,clickJump:true,ui:100,font:'default',shown:10,ahead:false,place:'bottom'},SETRNG={endSent:[.5,2],endRep:[.1,2],turnStart:[.1,.5],shown:[2,21],ui:[80,140]},SETENUM={place:['top','center','bottom'],font:['default','arial','helvetica','verdana','trebuchet']},UIFONTS={default:null,arial:'Arial,"Liberation Sans",sans-serif',helvetica:'"Helvetica Neue",Helvetica,Arial,sans-serif',verdana:'Verdana,"DejaVu Sans",sans-serif',trebuchet:'"Trebuchet MS","Lucida Grande",sans-serif'};
+const SETDEF={endSent:1.35,endRep:0.5,turnStart:0.35,clickJump:true,ui:100,txt:100,ptx:100,font:'default',shown:10,ahead:false,place:'bottom'},SETRNG={endSent:[.5,2],endRep:[.1,2],turnStart:[.1,.5],shown:[2,21],ui:[30,140],txt:[60,200],ptx:[40,140]},SETENUM={place:['top','center','bottom'],font:['default','arial','helvetica','verdana','trebuchet']},UIFONTS={default:null,arial:'Arial,"Liberation Sans",sans-serif',helvetica:'"Helvetica Neue",Helvetica,Arial,sans-serif',verdana:'Verdana,"DejaVu Sans",sans-serif',trebuchet:'"Trebuchet MS","Lucida Grande",sans-serif'};
 let settings=Object.assign({},SETDEF);
 try{const v=JSON.parse(localStorage.getItem('repete:settings')||'null');
   if(v)Object.keys(SETDEF).forEach(k=>{if(typeof SETDEF[k]==='boolean'){if(typeof v[k]==='boolean')settings[k]=v[k];}
@@ -585,8 +618,8 @@ try{const v=JSON.parse(localStorage.getItem('repete:settings')||'null');
 const saveSet=()=>{try{localStorage.setItem('repete:settings',JSON.stringify(settings));}catch(e){}};
 const secFmt=v=>(+v).toFixed(2).replace('.',',')+' s';
 const shownFmt=v=>+v>=21?'Toutes':String(v);
-const applyUi=()=>{const r=document.documentElement.style,f=UIFONTS[settings.font];r.setProperty('--ui',settings.ui/100);if(f){r.setProperty('--fh',f);r.setProperty('--fb',f);}else{r.removeProperty('--fh');r.removeProperty('--fb');}};
-function syncSet(){try{refreshBk();}catch(e){}$('#k_font').value=settings.font;$('#k_ui').value=settings.ui;$('#o_ui').textContent=settings.ui+' %';applyUi();$('#k_clickJump').checked=!!settings.clickJump;$('#k_ahead').checked=!!settings.ahead;$('#k_place').value=settings.place;$('#k_shown').value=settings.shown;$('#o_shown').textContent=shownFmt(settings.shown);document.querySelectorAll('#settings input[data-k]').forEach(i=>{i.value=settings[i.dataset.k];$('#o_'+i.dataset.k).textContent=secFmt(settings[i.dataset.k]);});}
+const applyUi=()=>{const r=document.documentElement.style,f=UIFONTS[settings.font];r.setProperty('--ui',settings.ui/100);r.setProperty('--tx',settings.txt/100);r.setProperty('--tp',settings.ptx/100);if(f){r.setProperty('--fh',f);r.setProperty('--fb',f);}else{r.removeProperty('--fh');r.removeProperty('--fb');}};
+function syncSet(){$('#k_txt').value=settings.txt;$('#o_txt').textContent=settings.txt+' %';$('#k_ptx').value=settings.ptx;$('#o_ptx').textContent=settings.ptx+' %';try{refreshBk();}catch(e){}$('#k_font').value=settings.font;$('#k_ui').value=settings.ui;$('#o_ui').textContent=settings.ui+' %';applyUi();$('#k_clickJump').checked=!!settings.clickJump;$('#k_ahead').checked=!!settings.ahead;$('#k_place').value=settings.place;$('#k_shown').value=settings.shown;$('#o_shown').textContent=shownFmt(settings.shown);document.querySelectorAll('#settings input[data-k]').forEach(i=>{i.value=settings[i.dataset.k];$('#o_'+i.dataset.k).textContent=secFmt(settings[i.dataset.k]);});}
 function openTab(t){document.querySelectorAll('#settings [role=tab]').forEach(b=>{const on=b.dataset.tab===t;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;});
   document.querySelectorAll('#settings [role=tabpanel]').forEach(p=>{p.hidden=p.id!=='pan-'+t;});}
 $('#gear').onclick=()=>{syncSet();const d=$('#settings');if(d.showModal)d.showModal();else d.setAttribute('open','');};
@@ -601,6 +634,7 @@ $('#logcopy').onclick=()=>{const t=$('#asrlog');t.select();try{navigator.clipboa
 $('#logclear').onclick=()=>{asrLog.length=0;$('#asrlog').value='';};
 $('#setreset').onclick=()=>{['endSent','endRep','turnStart'].forEach(k=>{settings[k]=SETDEF[k];});saveSet();syncSet();};
 $('#k_font').onchange=e=>{settings.font=e.target.value;applyUi();saveSet();};
+['txt','ptx'].forEach(k=>$('#k_'+k).addEventListener('input',e=>{settings[k]=+e.target.value;$('#o_'+k).textContent=settings[k]+' %';applyUi();saveSet();setPb();}));
 $('#k_ui').addEventListener('input',e=>{settings.ui=+e.target.value;$('#o_ui').textContent=settings.ui+' %';applyUi();saveSet();});
 const redraw=()=>{if(!$('#s3').hidden&&cues.length)render();};
 $('#k_shown').addEventListener('input',e=>{settings.shown=+e.target.value;$('#o_shown').textContent=shownFmt(settings.shown);saveSet();redraw();});
@@ -1415,7 +1449,7 @@ $('#stage').addEventListener('keydown',e=>{
 
 /* ---------- Contrôles ---------- */
 const GEAR=$('#gear').innerHTML;$('#gear2').innerHTML=GEAR;
-function setPb(){const pr=$('#prompter');document.documentElement.style.setProperty('--pb',(pr.hidden?0:pr.offsetHeight)+8+'px');}
+function setPb(){const pr=$('#prompter');document.documentElement.style.setProperty('--pb',(pr.hidden?0:Math.ceil(pr.getBoundingClientRect().height))+8+'px');}
 if(window.ResizeObserver)new ResizeObserver(setPb).observe($('#prompter'));window.addEventListener('resize',setPb);
 let reh=false;
 /* Écran allumé pendant la répétition (si le navigateur le permet) */
@@ -1475,12 +1509,23 @@ $('#ptxt').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList
 function setPh(px){px=Math.max(50,Math.min(Math.round(innerHeight*.6),px));$('#prompter').style.setProperty('--ph',px+'px');try{localStorage.setItem('ph',px);}catch(e){}}
 try{const v=+localStorage.getItem('ph');if(v)setPh(v);}catch(e){}
 const grip=$('#grip');let drag=null;
-grip.addEventListener('pointerdown',e=>{drag={y:e.clientY,h:$('#ptxt').offsetHeight};grip.setPointerCapture(e.pointerId);e.preventDefault();});
-grip.addEventListener('pointermove',e=>{if(drag)setPh(drag.h+(drag.y-e.clientY));});
-grip.addEventListener('pointerup',()=>{drag=null;});
+function setMin(on){$('#prompter').classList.toggle('min',on);grip.setAttribute('aria-expanded',!on);try{localStorage.setItem('pmin',on?'1':'');}catch(e){}setPb();}
+try{if(localStorage.getItem('pmin'))setMin(true);}catch(e){}
+grip.addEventListener('pointerdown',e=>{drag={y:e.clientY,h:$('#ptxt').offsetHeight,min:$('#prompter').classList.contains('min'),moved:false};grip.setPointerCapture(e.pointerId);e.preventDefault();});
+grip.addEventListener('pointermove',e=>{
+  if(!drag)return;const dy=drag.y-e.clientY;if(Math.abs(dy)>6)drag.moved=true;
+  if(drag.min){if(dy>24){setMin(false);drag.min=false;drag.h=Math.max(50,$('#ptxt').offsetHeight);drag.y=e.clientY;}return;}
+  const t=drag.h+dy;
+  if(t<30){setMin(true);drag.min=true;drag.y=e.clientY;return;}   /* tiré tout en bas : il ne reste qu’une petite poignée */
+  setPh(t);
+});
+grip.addEventListener('pointerup',()=>{if(drag&&!drag.moved)setMin(!$('#prompter').classList.contains('min'));drag=null;});   /* simple appui : replier / déplier */
 grip.addEventListener('pointercancel',()=>{drag=null;});
-grip.addEventListener('dblclick',()=>{$('#prompter').style.removeProperty('--ph');try{localStorage.removeItem('ph');}catch(e){}});
-grip.addEventListener('keydown',e=>{const h=$('#ptxt').offsetHeight;if(e.key==='ArrowUp'){setPh(h+24);e.preventDefault();}else if(e.key==='ArrowDown'){setPh(h-24);e.preventDefault();}});
+grip.addEventListener('dblclick',()=>{if($('#prompter').classList.contains('min'))return;$('#prompter').style.removeProperty('--ph');try{localStorage.removeItem('ph');}catch(e){}});
+grip.addEventListener('keydown',e=>{const h=$('#ptxt').offsetHeight,m=$('#prompter').classList.contains('min');
+  if(e.key==='ArrowUp'){if(m)setMin(false);else setPh(h+24);e.preventDefault();}
+  else if(e.key==='ArrowDown'){if(!m){if(h-24<50)setMin(true);else setPh(h-24);}e.preventDefault();}
+  else if(e.key==='Enter'||e.key===' '){setMin(!m);e.preventDefault();}});
 function setRate(v){v=Math.min(1.3,Math.max(.5,+v||1));$('#rate').value=v;$('#rate2').value=v;$('#rv').textContent=fmt(v);$('#rv2').textContent=fmt(v);save();}
 $('#rate').oninput=e=>setRate(e.target.value);
 $('#rate2').oninput=e=>setRate(e.target.value);
