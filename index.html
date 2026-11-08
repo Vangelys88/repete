@@ -1,0 +1,1497 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#a8204f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Répète">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Répète – ton partenaire de réplique</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--danger:#b3261e;--bg:#eceef3;--panel:#fbfbfd;--ink:#191830;--mute:#63617a;--line:#d3d5e0;--acc:#a8204f;--accink:#fff;--hi:#f6dfe7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14111c;--panel:#1d1929;--ink:#ece9f4;--mute:#9b97b3;--line:#342f46;--acc:#e8628a;--accink:#1a0a12;--hi:#3a1d2c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14111c;--panel:#1d1929;--ink:#ece9f4;--mute:#9b97b3;--line:#342f46;--acc:#e8628a;--accink:#1a0a12;--hi:#3a1d2c;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{--fh:Syne,system-ui,sans-serif;--fb:"Source Serif 4",Georgia,serif;height:100%;font-size:calc(16px*var(--ui,1))}
+body{margin:0;background:var(--bg);color:var(--ink);font:1.125rem/1.55 var(--fb);min-height:100%}
+main{max-width:720px;margin:0 auto;padding:20px 16px 8px}
+h1,h2,button,.btn,label.k{font-family:var(--fh)}
+h1{font-size:2.4rem;font-weight:800;margin:.2em 0 0;letter-spacing:-.02em}
+h2{font-size:1.15rem;font-weight:600;margin:0 0 .6em}
+.lead{color:var(--mute);margin:.2em 0 1em}
+.tip{color:var(--mute);font-size:.85rem;margin:.4em 0 0}
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px}
+button,.btn{font-size:.95rem;font-weight:600;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 14px;cursor:pointer;display:inline-block}
+button.main,.btn.main{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.btn:focus-within,.seg:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:.6em 0}
+textarea{width:100%;font:inherit;font-size:.95rem;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
+select{font:inherit;font-size:.85rem;max-width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px}
+#msg,#vhint{color:var(--mute);font-size:.95rem;min-height:1.4em;margin:.4em 0 0}
+#chars{list-style:none;margin:0 0 12px;padding:0}
+#chars li{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+#chars li:first-child{border-top:0}
+#chars .nm{flex:1 1 150px;font-weight:600}
+#chars .nm small{color:var(--mute);font-weight:400}
+#chars button{padding:5px 10px}
+#chars input[type=range]{width:72px}
+label.k{font-size:.9rem;display:flex;gap:6px;align-items:center}
+input[type=range]{accent-color:var(--acc)}
+#stage{height:min(46vh,360px);overflow-y:auto;overscroll-behavior:contain}
+.cue{--c:#cfcfdc;padding:8px 12px;border-left:5px solid var(--c);border-radius:0 8px 8px 0;margin:6px 0;color:var(--mute)}
+.cue b{font:600 12.8px Syne,system-ui,sans-serif;display:inline-block;background:var(--c);color:#1b1830;border-radius:999px;padding:1px 10px;margin-bottom:3px}
+.cue span{display:block}
+.cue span .pf{display:inline-block}
+.cue.cur{background:var(--hi);background:color-mix(in srgb,var(--c) 30%,var(--panel));color:var(--ink);font-size:1.15em}
+.cue.me b::after{content:" (toi)"}
+.cue.dir span{font-style:italic}
+#status{font:600 .95rem var(--fh);margin:0 0 8px;min-height:1.6em}
+#prompter{position:sticky;bottom:0;background:var(--panel);border-top:4px solid var(--c,var(--acc));padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));margin-top:12px}
+#prompter .in{max-width:720px;margin:0 auto}
+#prompter .hd{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;font:600 .9rem var(--fh);color:var(--mute)}
+#prompter .hd button{padding:5px 10px}
+#ptxt{margin:.3em 0 0;height:var(--ph,4.8em);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;word-break:break-word;scroll-behavior:smooth}
+#grip{height:20px;margin:-10px -16px 2px;cursor:ns-resize;touch-action:none;display:flex;align-items:center;justify-content:center}
+#grip::before{content:"";width:52px;height:5px;border-radius:3px;background:var(--line)}
+#grip:hover::before,#grip:focus-visible::before{background:var(--c,var(--acc))}
+#ptxt.off{color:var(--mute);font-style:italic}
+#chars li{display:grid;grid-template-columns:26px 18px minmax(130px,1fr) auto;gap:6px 10px;align-items:start}
+#chars .rd{margin-top:5px}
+#chars .nmcol{display:flex;flex-direction:column;gap:8px;min-width:0}
+#chars .nmcol .nm{flex:none}
+#chars .acts{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+#chars .ctl{display:flex;flex-direction:column;gap:8px;align-items:flex-start;justify-self:end}
+#chars .sels{display:flex;flex-wrap:wrap;gap:8px}
+#chars .volr{display:flex;align-items:center;gap:10px;align-self:stretch}   /* volume + haut-parleur : la barre s'étire du début des menus jusqu'au haut-parleur */
+#chars .volr .vol{flex:1;width:auto;min-width:0}
+@media (max-width:640px){#chars li{grid-template-columns:26px 18px 1fr}#chars .ctl{grid-column:1/-1}}
+/* Boutons d'action d'une ligne : une seule variable de hauteur pilote Écouter, Modifier et Supprimer ; la largeur de chacun a sa propre variable */
+#chars{--rowbtn-h:34px;--listen-w:78px;--iconbtn-w:51px}
+#chars .ic,#chars .listen{height:var(--rowbtn-h);box-sizing:border-box;padding:0;line-height:0;border-radius:8px;flex:none;display:inline-flex;align-items:center;justify-content:center}
+#chars .ic{width:var(--iconbtn-w)}
+#chars .listen{width:var(--listen-w)}
+#chars .ic svg,#chars .listen svg{width:16px;height:16px}
+#chars .listen svg{width:18px;height:18px}
+#chars .ic.arm{width:auto;background:var(--danger);border-color:var(--danger);color:#fff;line-height:1.2;padding:0 10px;font-size:.8rem}
+#gonein{padding:2px 0 4px}
+#gonebar button{padding:3px 10px;margin:0 4px 0 2px;font-size:.8rem}
+.cue.fut{opacity:.72}
+#play.idle{background:#a8ede9;border-color:#a8ede9;color:#1b1830}   /* « Lecture » : cyan pastel ; « Pause » garde la couleur d'accent */
+.jump .cue{cursor:pointer}
+.jump .cue:hover{background:color-mix(in srgb,var(--c) 16%,var(--panel))}
+.cue .rid{font-style:normal;font-weight:500;opacity:.6;margin-left:6px}
+.asrbox{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:.6em 0}
+.asrbox details{margin-top:8px}
+.asrbox summary{cursor:pointer;font-size:.9rem;color:var(--mute)}
+.asrbox summary b{color:var(--ink)}
+#asrmodes{border:0;padding:0;margin:12px 0 0;display:grid;gap:8px}
+#asrmodes legend{font-weight:600;padding:0 0 8px}
+#asrmodes label{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline;cursor:pointer}
+#asrmodes input{accent-color:var(--acc);margin:0;align-self:center}
+#asrmodes small{color:var(--mute);font-size:.85rem;flex:1 1 220px}
+.asrbeh{margin-top:12px;padding:10px 12px;background:var(--bg);border-radius:8px}
+.asrbeh h4{margin:0 0 4px;font-size:.9rem}
+.asrbeh p{margin:0;font-size:.9rem}
+#linesl{list-style:none;margin:0;padding:0}
+#linesl li{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}
+#linesl li:first-child{border-top:0}
+#linesl .lh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+#linesl .lid{font:700 .85rem var(--fh);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:1px 10px}
+#linesl .lrk{color:var(--mute);font-size:.85rem;flex:1}
+#linesl .lh button{padding:3px 10px;font-size:.8rem}
+#linesl .lh button[data-rm]{background:var(--danger);border-color:var(--danger);color:#fff}   /* même rouge que les autres boutons de suppression */
+#linesl .lh button[data-rm].arm{box-shadow:0 0 0 3px color-mix(in srgb,var(--danger) 35%,transparent)}
+#linesl .lh label{font-size:.85rem;display:flex;gap:5px;align-items:center}
+#linesl textarea{min-height:3.2em}
+#linesl li.offl textarea{opacity:.5}
+#linesl li.edl .lid{border-color:var(--acc)}
+/* ascenseurs fins et discrets (panneau du bas + zone de répétition), décollés du texte */
+#ptxt,#stage{font-family:"Source Serif 4",Georgia,serif;font-size:18px;padding-right:16px;scrollbar-gutter:stable}
+#ptxt::-webkit-scrollbar,#stage::-webkit-scrollbar{width:7px}
+#ptxt::-webkit-scrollbar-track,#stage::-webkit-scrollbar-track{background:transparent}
+#ptxt::-webkit-scrollbar-thumb,#stage::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--mute) 40%,transparent);border-radius:999px}
+#ptxt::-webkit-scrollbar-thumb:hover,#stage::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--mute) 75%,transparent)}
+@supports not selector(::-webkit-scrollbar){#ptxt,#stage{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--mute) 40%,transparent) transparent}}
+.seg{cursor:pointer;border-bottom:1px dotted var(--acc)}
+.seg:hover{background:var(--hi)}
+#chars .sw{width:26px;height:26px;padding:0;border-radius:50%;border:2px solid var(--line);background:var(--c);flex:none}
+#chars .rd{width:18px;flex:none}
+#chars .st{width:11.5em}
+#chars .vs{width:10.5em}
+.ver{font:600 .8rem var(--fh);letter-spacing:0;vertical-align:middle;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-left:6px}
+input[type=text]{font:inherit;font-size:.95rem;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-width:0}
+#libl{list-style:none;margin:0;padding:0}
+#libl li{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+#libl li:first-child{border-top:0}
+#libl .nm{flex:1 1 180px;font-weight:600}
+#libl .nm small{display:block;color:var(--mute);font-weight:400;font-size:.8rem}
+#libl button{padding:5px 12px}
+#heard{min-height:1.3em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root{--ok:#0e9f89;--bad:#d41a68}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ok:#3ee6c8;--bad:#ff5c95}}
+:root[data-theme="dark"]{--ok:#3ee6c8;--bad:#ff5c95}
+.w{display:inline-block;border-radius:4px;padding:0 2px;margin:0 -2px}
+.w.ok{background:color-mix(in srgb,var(--ok) 25%,transparent);box-shadow:inset 0 -2px 0 var(--ok)}
+.w.bad{background:color-mix(in srgb,var(--bad) 22%,transparent);box-shadow:inset 0 -2px 0 var(--bad)}
+.hw{display:flex;flex-wrap:wrap;gap:2px 8px;margin-top:6px;min-height:1.6em}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-2px)}40%{transform:translateX(2px)}60%{transform:translateX(-1.5px)}80%{transform:translateX(1.5px)}}
+.w.shake{animation:shake .28s ease-in-out 1}
+@media (prefers-reduced-motion:reduce){.w.shake{animation:none}}
+.top{position:relative;display:flex;align-items:center;justify-content:center;gap:8px}
+.top h1{text-align:center;padding:0 46px}
+.top #gear{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+#home>.lead{text-align:center}
+#gear{padding:8px;line-height:0;border-radius:50%}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);padding:0;width:min(560px,94vw);max-height:88vh;overflow:auto}
+#settings{margin:6vh auto auto;max-height:88vh}   /* haut fixe : la fenêtre ne grandit que vers le bas, puis défile */
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.sbox{padding:16px 18px 18px}
+.shead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.shead h2{margin:0}
+.shead button{padding:5px 10px}
+.lead-list{margin:0;padding-left:1.3em}
+.lead-list li{margin:0 0 4px}
+.sline{display:flex;align-items:center;gap:10px}
+.sline h2{margin:0;flex:1;min-width:0;overflow-wrap:anywhere}
+.sline .sep{color:var(--mute);font-weight:400}
+.sline input{flex:1;min-width:0}
+.sline .iconb svg{width:18px;height:18px}
+.sline .iconb{padding:0;display:inline-flex;align-items:center;justify-content:center;width:var(--rowbtn-h,34px);height:var(--rowbtn-h,34px);flex:none}
+.sub{border:1px solid var(--line);border-radius:10px;margin:14px 0 0;padding:0 14px 8px}
+.sub>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;padding:10px 0;font:600 1rem var(--fh);color:var(--ink)}
+.sub>summary::-webkit-details-marker{display:none}
+.sub>summary::before{content:'▸';display:inline-block;transition:transform .15s;color:var(--mute)}
+.sub[open]>summary::before{transform:rotate(90deg)}
+.sub[open]>summary{border-bottom:1px solid var(--line);margin-bottom:8px}
+.sub>summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.tabs button{border:0;border-bottom:3px solid transparent;border-radius:6px 6px 0 0;background:none;padding:8px 12px}
+.tabs button[aria-selected="true"]{border-bottom-color:var(--acc)}
+.sl{margin:0 0 16px}
+.msep{border-top:1px solid var(--line);margin-top:16px;padding-top:12px}
+.msep h3{font:600 .95rem var(--fh);margin:0 0 4px}
+.sl label{display:flex;justify-content:space-between;font:600 .95rem var(--fh)}
+.sl input[type=range]{width:100%;margin:6px 0 0}
+@media (max-width:600px){dialog,#settings{width:100vw;height:100vh;max-height:100vh;margin:0;border-radius:0;border:0}}
+[hidden]{display:none!important}
+#s3 .row{justify-content:center}
+#s3 .row .k{justify-content:center}
+body.reh #s3>*{width:100%;max-width:720px;margin-left:auto;margin-right:auto}
+body.reh #s3>#rbar{max-width:none}
+@keyframes pfin{from{opacity:0;filter:blur(9px);transform:translateY(2px)}to{opacity:1;filter:blur(0);transform:none}}
+@media (prefers-reduced-motion:no-preference){.pfnew{animation:pfin 1.1s cubic-bezier(.2,.7,.2,1) both}}
+#prompter #hear,#prompter #hint,#prompter #peek{background:#ffd9a3;border-color:#f0c07a;color:#2a1a00}
+#prompter #hide{background:#fff;border-color:#d3d5e0;color:#1b1830}
+#s2 .lead{font-size:.95rem}
+.sline h2{font-family:var(--fb);font-weight:600}
+.bkrow{margin:10px 0 4px;flex-wrap:nowrap}
+.bkrow button{flex:1 1 0;min-width:0}
+.topbar{justify-content:space-between}
+#share{background:#bfe3f7;border-color:#9fd0ec;color:#12304a}
+.impbtns{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+#sharemsg:empty,#impmsg:empty{display:none}
+#paste.on{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+#rbar{display:none}
+#more>summary{cursor:pointer;color:var(--mute);font:600 .9rem var(--fh);padding:6px 0;margin-top:8px}
+/* Mode répétition plein écran (dans la page) : seuls restent la zone de répétition, les commandes et « Ta prochaine réplique » */
+body.reh{overflow:hidden}
+body.reh .top,body.reh #back,body.reh #s2,body.reh #s2a,body.reh #s3h{display:none}
+body.reh main{padding:0;max-width:none}
+body.reh #s3{position:fixed;inset:0;z-index:20;margin:0;border:0;border-radius:0;display:flex;flex-direction:column;padding:8px 14px var(--pb,160px);background:var(--bg);overflow:hidden}
+body.reh #rbar{display:flex;align-items:center;gap:10px;padding:2px 0 8px}
+body.reh #rbar #rtitle{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mute);font:600 .9rem var(--fh);text-align:center}
+body.reh #rbar button{padding:6px 12px}
+body.reh #gear2 svg{width:20px;height:20px;display:block}
+body.reh #status{margin-top:0;margin-bottom:6px}
+body.reh #stage{flex:1 1 auto;height:auto;min-height:80px}
+body.reh #s3>.row{flex:none;margin-top:8px}
+body.reh #more{flex:none;max-height:38vh;overflow-y:auto}
+body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
+@media (prefers-reduced-motion:no-preference){.cue.cur{transition:background .2s}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><h1>Répète <small class="ver" id="ver"></small></h1>
+    <button id="gear" aria-label="Paramètres" title="Paramètres"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button></div>
+  <div id="home">
+  <p class="lead">Ton partenaire de réplique : il lit tous les rôles, sauf le tien.</p>
+
+  <section id="s1">
+    <h2>Importer un nouveau script</h2>
+    <p class="lead">Aucune mise en forme à respecter : l’appli repère elle-même les personnages (noms en majuscules, « Nom : », « NOM. », nom centré au-dessus de la réplique…). Tu pourras corriger ensuite.</p>
+    <div class="row">
+      <label class="btn main">Choisir un PDF<input type="file" id="pdf" accept="application/pdf" hidden></label>
+      <button id="paste">Coller du texte</button>
+      <button id="demo">Essayer un exemple</button>
+    </div>
+    <textarea id="txt" rows="8" hidden placeholder="Colle ici le texte de ta scène"></textarea>
+    <div class="row"><button id="parse" class="main" hidden>Analyser le texte</button></div>
+    <p id="msg" role="status"></p>
+  </section>
+
+  <section id="lib">
+    <h2>Mes scripts</h2>
+    <p class="tip" id="libnote"></p>
+    <details id="libsub" class="sub" open><summary>Scripts enregistrés <span id="libn"></span></summary>
+      <ul id="libl"></ul>
+      <p class="tip" id="libnone">Aucun script enregistré pour l’instant : importe-en un ci-dessus.</p>
+    </details>
+  </section>
+  </div>
+
+  <div id="scriptview" hidden>
+  <div class="row topbar"><button id="back" aria-label="Retour à l’accueil">◀ Mes scripts</button><button id="share" class="share" title="Envoyer ce script (WhatsApp, mail…) ou l’enregistrer dans un fichier">Partager</button></div>
+  <p class="tip" id="sharemsg" role="status"></p>
+  <section id="s2a">
+    <div class="sline">
+      <h2><span id="sname"></span></h2>
+      <input type="text" id="stitle" maxlength="80" aria-label="Nom du script" hidden>
+      <button id="sedit" class="iconb" aria-label="Modifier le nom du script" title="Modifier le nom"></button>
+    </div>
+  </section>
+  <section id="s2">
+    <h2>Personnages détectés</h2>
+    <div class="lead">
+      <p style="margin:0 0 6px">Coche ton rôle.</p>
+      <ul class="lead-list">
+        <li>Si un nom détecté n’est pas un personnage (titre, didascalie), choisis « Ignorer ».</li>
+        <li>S’il s’agit du même personnage qu’un autre, choisis « Fusionner ».</li>
+        <li>Chaque personnage, toi compris, a sa couleur (touche la pastille pour la changer), sa voix et son volume.</li>
+      </ul>
+    </div>
+    <details id="charsub" class="sub" open><summary>Personnages <span id="charn"></span></summary><ul id="chars"></ul></details>
+    <details id="gonebar" class="sub" open hidden><summary>Supprimés <span id="gonen"></span></summary><div id="gonein" class="tip"></div></details>
+    <p id="vhint"></p>
+    <div class="row">
+      <label class="k">Vitesse de lecture
+        <input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="1"><output id="rv">1,00×</output>
+      </label>
+    </div>
+    <div class="row"><button id="start" class="main" disabled>Lancer la répétition</button> <button id="resume" hidden></button></div>
+    <p id="savemsg" class="tip" role="status"></p>
+  </section>
+
+  <section id="s3" hidden>
+    <div id="rbar"><button id="rexit" aria-label="Quitter la répétition">✕ Quitter</button><span id="rtitle"></span><button id="gear2" aria-label="Paramètres" title="Paramètres"></button></div>
+    <h2 id="s3h">Répétition</h2>
+    <p id="status" aria-live="polite"></p>
+    <div id="stage"></div>
+    <div class="row">
+      <button id="prev" aria-label="Réplique précédente">◀ Précédente</button>
+      <button id="play" class="main">Pause</button>
+      <button id="next">Suivante ▶</button>
+      <button id="restart">Recommencer</button>
+    </div>
+    <details id="more" open><summary>Position, vitesse, reconnaissance vocale</summary>
+    <div class="row"><label class="k" style="flex:1">Position <input type="range" id="pos" min="0" value="0" style="flex:1"></label></div>
+    <div class="row"><label class="k">Vitesse <input type="range" id="rate2" min="0.5" max="1.3" step="0.05" value="1"><output id="rv2">1,00×</output></label></div>
+    <div class="asrbox">
+      <label class="k"><input type="checkbox" id="asr"> <b>Reconnaissance vocale</b> <small>(essai)</small></label>
+      <details id="asropts">
+        <summary>Tolérance : <b id="asrname"></b> · réglages</summary>
+        <fieldset id="asrmodes"><legend>Tolérance de la reconnaissance vocale</legend></fieldset>
+        <div class="asrbeh"><h4>Comportement recherché</h4><p id="asrbeh"></p></div>
+        <label class="k" style="margin-top:12px">Affichage des mots
+          <select id="wordview" aria-label="Où afficher les mots validés"><option value="both" selected>Partout</option><option value="bas">Panneau du bas</option><option value="scene">Zone de répétition</option></select></label>
+      </details>
+    </div>
+    <p class="tip" id="asrnote"></p>
+    <p class="lead" style="margin-bottom:0">Quand c’est ton tour, dis ta réplique à voix haute, puis appuie sur « Suivante » ou sur la flèche droite.</p>
+    </details>
+  </section>
+  </div>
+</main>
+
+<dialog id="settings" aria-labelledby="settitle">
+  <div class="sbox">
+    <div class="shead"><h2 id="settitle">Paramètres</h2><button id="setclose" aria-label="Fermer">✕</button></div>
+    <div class="tabs" role="tablist" aria-label="Catégories de paramètres">
+      <button role="tab" id="tab-gen" aria-controls="pan-gen" aria-selected="true" data-tab="gen">Général</button>
+      <button role="tab" id="tab-rep" aria-controls="pan-rep" aria-selected="false" data-tab="rep" tabindex="-1">Répliques</button>
+      <button role="tab" id="tab-voc" aria-controls="pan-voc" aria-selected="false" data-tab="voc" tabindex="-1">Mode vocal</button>
+      <button role="tab" id="tab-bk" aria-controls="pan-bk" aria-selected="false" data-tab="bk" tabindex="-1">Sauvegarde</button>
+    </div>
+    <div role="tabpanel" id="pan-gen" aria-labelledby="tab-gen" class="pan">
+      <details class="sub" open><summary>Interface</summary>
+        <div class="sl"><label class="k" style="justify-content:space-between;display:flex" for="k_font">Police de l’interface
+          <select id="k_font"><option value="default">Par défaut</option><option value="arial">Arial</option><option value="helvetica">Helvetica Neue</option><option value="verdana">Verdana</option><option value="trebuchet">Trebuchet MS</option></select></label>
+          <p class="tip">Change la police des boutons, menus et textes de l’interface (si elle est installée sur ton appareil, sinon une police voisine est utilisée). Le texte de la zone de répétition et de « Ta prochaine réplique » ne change pas.</p></div>
+        <div class="sl"><label for="k_ui">Taille de la police <output id="o_ui"></output></label>
+          <input type="range" id="k_ui" min="80" max="140" step="5">
+          <p class="tip">Agrandit ou réduit les boutons, menus et textes de l’interface (le texte de répétition n’est pas touché).</p></div>
+      </details>
+    </div>
+    <div role="tabpanel" id="pan-rep" aria-labelledby="tab-rep" class="pan" hidden>
+      <div class="sl"><label class="k" style="justify-content:flex-start;display:flex"><input type="checkbox" id="k_clickJump"> Cliquer sur une réplique pour reprendre à partir d’elle</label>
+        <p class="tip">Dans la zone de répétition, un clic (ou Entrée) sur une réplique relance la lecture à partir de celle-ci. Désactive-le si tu préfères ne jamais risquer de relancer la scène par un clic.</p></div>
+      <details class="sub" open><summary>Affichage des répliques</summary>
+        <div class="sl"><label class="k" style="justify-content:flex-start;display:flex" for="k_place">Position de la réplique en cours
+          <select id="k_place"><option value="top">En haut de la zone</option><option value="center">Au centre de la zone</option><option value="bottom">En bas de la zone (par défaut)</option></select></label></div>
+        <div class="sl"><label for="k_shown">Répliques affichées <output id="o_shown"></output></label>
+          <input type="range" id="k_shown" min="2" max="21" step="1">
+          <p class="tip">Nombre de répliques visibles jusqu’à la réplique en cours (de 2 à 20, ou toutes). Les plus anciennes restent accessibles en faisant défiler la zone. Sur un très long script, « Toutes » alourdit légèrement l’affichage.</p></div>
+        <div class="sl"><label class="k" style="justify-content:flex-start;display:flex"><input type="checkbox" id="k_ahead"> Afficher aussi les répliques à venir</label>
+          <p class="tip">Les répliques de tes partenaires sont déjà présentes sous la réplique en cours (on peut faire défiler pour les lire). Les tiennes restent masquées. Le même nombre de répliques est affiché après la réplique en cours.</p></div>
+      </details>
+    </div>
+    <div role="tabpanel" id="pan-voc" aria-labelledby="tab-voc" class="pan" hidden>
+      <details class="sub" open><summary>Détection vocale</summary>
+      <div class="sl"><label for="k_endSent">Détection fin de phrase <output id="o_endSent"></output></label>
+        <input type="range" id="k_endSent" data-k="endSent" min="0.5" max="2" step="0.05">
+        <p class="tip">Pause après laquelle une phrase presque complète est validée, même si son dernier mot n’a pas été reconnu. Plus court : enchaînement plus vif, mais risque de valider pendant une hésitation.</p></div>
+      <div class="sl"><label for="k_endRep">Fin de réplique <output id="o_endRep"></output></label>
+        <input type="range" id="k_endRep" data-k="endRep" min="0.1" max="2" step="0.05">
+        <p class="tip">Pause entre la validation de ta dernière phrase et la reprise du partenaire. Plus court : enchaînement immédiat ; plus long : le temps de souffler.</p></div>
+      <div class="sl"><label for="k_turnStart">Début de ton tour <output id="o_turnStart"></output></label>
+        <input type="range" id="k_turnStart" data-k="turnStart" min="0.1" max="0.5" step="0.05">
+        <p class="tip">Délai avant que le micro prenne en compte ta voix quand c’est ton tour. Plus court : tes premiers mots ne sont pas perdus ; trop court : la fin de la voix du partenaire peut être comptée comme la tienne.</p></div>
+      <div class="row"><button id="setreset">Réinitialiser</button></div>
+      </details>
+      <details class="sub" open><summary>Micro</summary>
+        <p class="tip">Vérifie que la page a le droit d’utiliser ton micro et que la reconnaissance vocale est disponible.</p>
+        <div class="row"><button id="micdiag">Tester le micro</button></div>
+        <p class="tip" id="diag" style="white-space:pre-line"></p>
+      </details>
+      <details class="sub" id="logsub"><summary>Journal de reconnaissance</summary>
+        <p class="tip">Les phrases où des mots ont été ratés : ce que le script attendait et ce que le moteur a entendu. Copie-le-moi pour que j’ajuste la détection.</p>
+        <textarea id="asrlog" readonly rows="8" style="width:100%;font:12px/1.4 monospace" placeholder="(vide : rien de raté pour l’instant)"></textarea>
+        <div class="row"><button id="logcopy">Copier</button> <button id="logclear">Vider</button></div>
+      </details>
+    </div>
+    <div role="tabpanel" id="pan-bk" aria-labelledby="tab-bk" class="pan" hidden>
+    <details id="bksub" class="sub" open><summary>Sauvegarde</summary>
+      <p class="tip">Exporte tous tes scripts dans un fichier pour les garder en lieu sûr ou les retrouver sur une autre machine.</p>
+      <div class="row bkrow">
+        <button id="imp" class="main">Importer mes scripts</button>
+        <button id="exp" class="main">Exporter mes scripts</button>
+        <input type="file" id="impfile" accept=".json,application/json" hidden>
+      </div>
+      <p class="tip" id="impmsg" role="status"></p>
+    </details>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="impdlg" aria-labelledby="impt">
+  <div class="sbox">
+    <div class="shead"><h2 id="impt">Importer des scripts</h2><button id="impclose" aria-label="Fermer">✕</button></div>
+    <p id="impq"></p>
+    <div class="impbtns">
+      <button id="imp_rep" class="main">Remplacer les existants</button>
+      <button id="imp_both">Garder les deux</button>
+      <button id="imp_skip">Ignorer les existants</button>
+      <button id="imp_cancel">Annuler</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="lines" aria-labelledby="linestitle">
+  <div class="sbox">
+    <div class="shead"><h2 id="linestitle"></h2><button id="linesclose" aria-label="Fermer">✕</button></div>
+    <p class="tip">Chaque bloc a son numéro <b>#n</b> : sa position dans le script (didascalies comprises). Modifie le texte, désactive un bloc (il est alors sauté à la répétition) ou supprime-le. Le script d’origine n’est jamais touché : tu peux tout rétablir.</p>
+    <ol id="linesl"></ol>
+    <div class="row" id="linesfoot"></div>
+  </div>
+</dialog>
+
+<div id="prompter" hidden>
+  <div id="grip" role="separator" aria-orientation="horizontal" tabindex="0" aria-label="Redimensionner le panneau de la prochaine réplique" title="Glisse pour agrandir ou réduire (double-clic : taille d’origine)"></div>
+  <div class="in">
+    <div class="hd"><span>Ta prochaine réplique</span>
+      <span>
+        <button id="hear" title="Écoute la réplique entière, ou le texte sélectionné">Écouter</button>
+        <button id="hint" title="Lit les premiers mots, trois de plus à chaque appui">Souffler</button>
+        <button id="peek" title="Affiche les mots de ta réplique un par un, un de plus à chaque appui">Indice</button>
+        <button id="hide" aria-pressed="false">Masquer</button>
+      </span></div>
+    <p id="ptxt"></p>
+    <p class="tip" id="heard"></p>
+    <p class="tip">Écouter ne fait pas avancer la scène. Touche un passage pour l’entendre seul, ou sélectionne du texte puis « Écouter ».</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+/* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché à la suite : v0.1.4.62 */
+const VERSION='0.1.4',BUILD=69;
+const VFULL=VERSION+'.'+BUILD;$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+BUILD;document.title='Répète v'+VFULL+' – ton partenaire de réplique';
+const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
+const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
+const PAL=['#a9d6f5','#a8ede9','#f5b5e3','#ffd59e','#cdb8f0','#b5eac0','#f9b8b0','#eef0a8'],DIRC='#cfcfdc';
+const colOf=id=>id==='__dir'?(dirv.col<0?DIRC:PAL[dirv.col]):PAL[chars[id].col];
+let edits={},gone=new Set(),dirv={on:false,ign:false,v:0,pitch:.85,vol:1,col:-1},raw=[],disp={},chars={},cues=[],me=null,idx=0,playing=false,tok=0,ltok=0,voices=[],puffN=0,puffNew=false,hidden=false,hintN=0,hintFor=-1;
+
+/* ---------- Moteur de voix interchangeable ----------
+   Interface d’un moteur : load() → voix {id,name,lang,q,label,raw} · speak(texte,voix,{rate,pitch,volume},alive) → Promise · stop().
+   Aujourd’hui : voix du navigateur. Plus tard, sans toucher au reste : voix native du téléphone, service neural en ligne, modèle embarqué. */
+const quality=v=>{const n=(v.name+' '+(v.voiceURI||'')).toLowerCase();
+  if(/natural/.test(n))return 100;
+  if(/neural|online/.test(n))return 95;
+  if(/premium|enhanced|am[ée]lior/.test(n))return 90;
+  if(/google/.test(n))return 80;
+  if(/espeak|compact/.test(n))return 10;
+  if(/microsoft/.test(n))return 40;
+  return 30;};
+const WebSpeech={
+  ok:'speechSynthesis' in window,
+  load(){
+    if(!this.ok)return [];
+    const all=speechSynthesis.getVoices();
+    let l=all.filter(v=>/^fr/i.test(v.lang));if(!l.length)l=all;
+    const fr=v=>/^fr-FR/i.test(v.lang)?1:0;
+    return l.map(v=>{const q=quality(v);return {id:v.voiceURI||v.name,name:v.name,lang:v.lang,q,raw:v,
+        label:v.name+' — '+(q>=90?'naturelle':q>=80?'bonne':'basique')};})
+      .sort((a,b)=>b.q-a.q||fr(b)-fr(a)||a.name.localeCompare(b.name));
+  },
+  speak(text,voice,o,alive){
+    /* Chrome avale parfois une lecture lancée juste après cancel() (ou ne la démarre jamais) : on laisse respirer
+       80 ms, on surveille le démarrage (1,5 s) et on retente une fois avant de passer à la suite. */
+    return new Promise(res=>{
+      const parts=text.match(/[^.!?…]+[.!?…]*\s*/g)||[text];let i=0;
+      const one=p=>new Promise(r=>{
+        let fin=false,started=false,w=0;
+        const end=ok=>{if(fin)return;fin=true;clearTimeout(w);r(ok);};
+        const u=new SpeechSynthesisUtterance(p);
+        u.lang=(voice&&voice.lang)||'fr-FR';if(voice)u.voice=voice.raw;
+        u.rate=o.rate;u.pitch=o.pitch;u.volume=o.volume;
+        u.onstart=()=>{started=true;clearTimeout(w);};
+        u.onend=()=>end(true);
+        u.onerror=e=>end(e&&(e.error==='canceled'||e.error==='interrupted'));
+        w=setTimeout(()=>{if(!started)end(false);},1500);
+        try{speechSynthesis.resume();speechSynthesis.speak(u);}catch(e){end(false);}
+      });
+      const nxt=async()=>{
+        if(i>=parts.length||!alive())return res();
+        const p=parts[i++].trim();if(!p)return nxt();
+        await new Promise(r=>setTimeout(r,i===1?80:0));
+        if(!alive())return res();
+        let ok=await one(p);
+        if(!ok&&alive()){speechSynthesis.cancel();await new Promise(r=>setTimeout(r,150));if(alive())ok=await one(p);if(!ok)console.warn('Synthèse vocale : lecture échouée',p);}
+        nxt();
+      };
+      nxt();
+    });
+  },
+  stop(){if(this.ok)speechSynthesis.cancel();},
+  onChange(cb){if(this.ok)speechSynthesis.onvoiceschanged=cb;}
+};
+let engine=WebSpeech,script=null,saveT=null,resumeAt=0,startFrom=0;
+const vidx=(id,fb)=>{const j=voices.findIndex(v=>v.id===id);return j<0?fb:j;};
+/* voix par défaut : on répartit les personnages sur les meilleures voix seulement */
+const autoV=i=>{if(!voices.length)return 0;const m=Math.max(1,voices.filter(v=>v.q>=voices[0].q-15).length);return i%m;};
+function fixVoice(o,i){if(o.vid)o.v=vidx(o.vid,autoV(i));else{o.v=autoV(i);o.vid=voices[o.v]&&voices[o.v].id;}}
+function loadVoices(){
+  voices=engine.load();
+  Object.keys(chars).forEach((k,i)=>fixVoice(chars[k],i));
+  fixVoice(dirv,Object.keys(chars).length);
+  if(Object.keys(chars).length)renderChars();
+}
+function voiceHint(){
+  const top=voices.length?voices[0].q:0,nat=voices.filter(v=>v.q>=90).length;
+  $('#vhint').textContent=!voices.length?"Aucune voix détectée sur cet appareil.":
+    nat>=2?nat+" voix naturelles détectées : elles sont proposées en premier.":
+    top>=90?"Une seule voix naturelle détectée. Pour en avoir plusieurs, ouvre l’appli dans Edge (voix « Natural » gratuites) ou, sur Mac, ajoute des voix « Premium » dans les réglages d’accessibilité.":
+    "";
+}
+engine.onChange(loadVoices);loadVoices();
+if(!engine.ok)$('#msg').textContent="Ce navigateur ne sait pas lire à voix haute. Essaie Chrome, Edge ou Safari.";
+
+/* ---------- Stockage (couche isolée : remplaçable plus tard par celui du téléphone) ---------- */
+const Store={
+  ok:(()=>{try{localStorage.setItem('repete:t','1');localStorage.removeItem('repete:t');return true;}catch(e){return false;}})(),
+  index(){try{return JSON.parse(localStorage.getItem('repete:index')||'[]');}catch(e){return [];}},
+  load(id){try{return JSON.parse(localStorage.getItem('repete:s:'+id));}catch(e){return null;}},
+  save(s){try{
+    localStorage.setItem('repete:s:'+s.id,JSON.stringify(s));
+    const ix=this.index().filter(x=>x.id!==s.id);
+    ix.unshift({id:s.id,title:s.title,updated:s.updated,n:s.n});
+    localStorage.setItem('repete:index',JSON.stringify(ix));return true;}catch(e){return false;}},
+  remove(id){try{localStorage.removeItem('repete:s:'+id);
+    localStorage.setItem('repete:index',JSON.stringify(this.index().filter(x=>x.id!==id)));return true;}catch(e){return false;}}
+};
+const newScript=(title,text)=>({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),title,text,created:Date.now()});
+function snapshot(){
+  const set={};Object.keys(chars).forEach(k=>{const c=chars[k];set[k]={col:c.col,vol:c.vol,map:c.map,vid:c.vid};});
+  return Object.assign({},script,{updated:Date.now(),edits,gone:[...gone],me,rate:+$('#rate').value,idx,hide:hidden,set,
+    dir:{on:dirv.on,ign:dirv.ign,col:dirv.col,vol:dirv.vol,vid:dirv.vid},asr:{on:asrOn,lvl:asrLvl,view:$('#wordview').value},n:cues.filter(c=>!c.dir).length});
+}
+function save(){
+  if(!script)return;clearTimeout(saveT);
+  saveT=setTimeout(()=>{if(!script)return;const ok=Store.ok&&Store.save(snapshot());
+    $('#savemsg').textContent=ok?'Enregistré automatiquement sur cet appareil.':'Sauvegarde impossible (stockage plein ou désactivé).';renderLib();},400);
+}
+function applySaved(s){
+  const ks=Object.keys(chars);
+  ks.forEach(k=>{const o=s.set&&s.set[k];if(!o)return;const c=chars[k];
+    if(o.col!=null)c.col=o.col;if(o.vol!=null)c.vol=o.vol;if(o.map)c.map=o.map;
+    if(o.vid){c.vid=o.vid;c.v=vidx(o.vid,c.v);}});
+  ks.forEach(k=>{const m=chars[k].map;if(m!=='keep'&&m!=='ignore'&&m!=='__dir'&&!(chars[m]&&chars[m].map==='keep'))chars[k].map='keep';});
+  const d=s.dir;
+  if(d){dirv.on=!!d.on;dirv.ign=!!d.ign;if(d.col!=null)dirv.col=d.col;if(d.vol!=null)dirv.vol=d.vol;if(d.vid){dirv.vid=d.vid;dirv.v=vidx(d.vid,dirv.v);}}
+  if(s.edits)Object.keys(s.edits).forEach(i=>{const e=s.edits[i];if(raw[i]&&e&&e.h===raw[i].text.slice(0,30)){const o={h:e.h};if(e.t!=null)o.t=e.t;if(e.off)o.off=1;if(e.del)o.del=1;edits[i]=o;}});
+  if(Array.isArray(s.gone))s.gone.forEach(k=>{if(chars[k]||k==='__dir')gone.add(k);});
+  me=(s.me&&chars[s.me]&&chars[s.me].map==='keep'&&!gone.has(s.me))?s.me:null;
+  hidden=!!s.hide;$('#hide').textContent=hidden?'Afficher':'Masquer';
+  if(s.asr){asrOn=!!s.asr.on&&Recognizer.ok;if(s.asr.view)$('#wordview').value=s.asr.view;}$('#asr').checked=asrOn;setAsrLvl(s.asr&&s.asr.lvl||.8);setRate(s.rate||1);
+}
+function renderLib(){
+  const ul=$('#libl');ul.innerHTML='';try{refreshBk();}catch(e){}
+  const ix=Store.ok?Store.index():[];
+  $('#libnone').hidden=!Store.ok||ix.length>0;$('#libn').textContent=ix.length?'('+ix.length+')':'';
+  $('#libnote').textContent=Store.ok?'Enregistrés automatiquement, avec leurs réglages, sur cet appareil et dans ce navigateur uniquement.':'La sauvegarde est indisponible dans ce navigateur (navigation privée ?).';
+  ix.forEach(x=>{
+    const li=el('li'),o=el('button',{className:'main'},'Ouvrir'),d=el('button',{},'Supprimer');
+    o.dataset.o=x.id;d.dataset.x=x.id;
+    li.append(el('span',{className:'nm'},x.title,el('small',{},new Date(x.updated).toLocaleDateString('fr-FR')+' · '+x.n+' répliques')),o,d);
+    ul.append(li);
+  });
+}
+$('#libl').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.o){
+    const s=Store.load(b.dataset.o);
+    if(!s){$('#msg').textContent='Ce script est introuvable.';return;}
+    script={id:s.id,title:s.title,text:s.text,created:s.created};analyse(s.text,s);
+  }else if(b.dataset.x){
+    if(b.dataset.arm){clearTimeout(saveT);Store.remove(b.dataset.x);if(script&&script.id===b.dataset.x)script=null;renderLib();}
+    else{b.dataset.arm='1';b.textContent='Confirmer ?';setTimeout(()=>{if(b.isConnected){delete b.dataset.arm;b.textContent='Supprimer';}},3000);}
+  }
+});
+const showTitle=()=>{$('#sname').textContent=script?script.title:'';};
+function editTitle(on){$('#stitle').hidden=!on;$('#sname').parentElement.hidden=on;if(on){$('#stitle').value=script?script.title:'';$('#stitle').focus();$('#stitle').select();}else showTitle();}
+$('#sedit').onclick=()=>editTitle($('#stitle').hidden);
+$('#stitle').addEventListener('input',e=>{if(script){script.title=e.target.value.trim()||'Sans titre';save();}});
+$('#stitle').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key==='Escape'){editTitle(false);e.preventDefault();}});
+$('#stitle').addEventListener('blur',()=>{if(!$('#stitle').hidden)editTitle(false);});
+['change','input','click'].forEach(ev=>$('#chars').addEventListener(ev,save));
+$('#resume').onclick=()=>{startFrom=resumeAt;$('#start').click();};
+renderLib();
+
+/* ---------- Paramètres (communs à tous les scripts, enregistrés dans ce navigateur) ---------- */
+const SETDEF={endSent:1.35,endRep:0.5,turnStart:0.35,clickJump:true,ui:100,font:'default',shown:10,ahead:false,place:'bottom'},SETRNG={endSent:[.5,2],endRep:[.1,2],turnStart:[.1,.5],shown:[2,21],ui:[80,140]},SETENUM={place:['top','center','bottom'],font:['default','arial','helvetica','verdana','trebuchet']},UIFONTS={default:null,arial:'Arial,"Liberation Sans",sans-serif',helvetica:'"Helvetica Neue",Helvetica,Arial,sans-serif',verdana:'Verdana,"DejaVu Sans",sans-serif',trebuchet:'"Trebuchet MS","Lucida Grande",sans-serif'};
+let settings=Object.assign({},SETDEF);
+try{const v=JSON.parse(localStorage.getItem('repete:settings')||'null');
+  if(v)Object.keys(SETDEF).forEach(k=>{if(typeof SETDEF[k]==='boolean'){if(typeof v[k]==='boolean')settings[k]=v[k];}
+    else if(typeof SETDEF[k]==='string'){if(SETENUM[k].includes(v[k]))settings[k]=v[k];}
+    else if(typeof v[k]==='number'&&isFinite(v[k]))settings[k]=Math.min(SETRNG[k][1],Math.max(SETRNG[k][0],Math.round(v[k]*100)/100));});}catch(e){}
+const saveSet=()=>{try{localStorage.setItem('repete:settings',JSON.stringify(settings));}catch(e){}};
+const secFmt=v=>(+v).toFixed(2).replace('.',',')+' s';
+const shownFmt=v=>+v>=21?'Toutes':String(v);
+const applyUi=()=>{const r=document.documentElement.style,f=UIFONTS[settings.font];r.setProperty('--ui',settings.ui/100);if(f){r.setProperty('--fh',f);r.setProperty('--fb',f);}else{r.removeProperty('--fh');r.removeProperty('--fb');}};
+function syncSet(){try{refreshBk();}catch(e){}$('#k_font').value=settings.font;$('#k_ui').value=settings.ui;$('#o_ui').textContent=settings.ui+' %';applyUi();$('#k_clickJump').checked=!!settings.clickJump;$('#k_ahead').checked=!!settings.ahead;$('#k_place').value=settings.place;$('#k_shown').value=settings.shown;$('#o_shown').textContent=shownFmt(settings.shown);document.querySelectorAll('#settings input[data-k]').forEach(i=>{i.value=settings[i.dataset.k];$('#o_'+i.dataset.k).textContent=secFmt(settings[i.dataset.k]);});}
+function openTab(t){document.querySelectorAll('#settings [role=tab]').forEach(b=>{const on=b.dataset.tab===t;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;});
+  document.querySelectorAll('#settings [role=tabpanel]').forEach(p=>{p.hidden=p.id!=='pan-'+t;});}
+$('#gear').onclick=()=>{syncSet();const d=$('#settings');if(d.showModal)d.showModal();else d.setAttribute('open','');};
+$('#setclose').onclick=()=>$('#settings').close();
+$('#settings').addEventListener('click',e=>{if(e.target===$('#settings'))$('#settings').close();});
+document.querySelectorAll('#settings [role=tab]').forEach(b=>{
+  b.onclick=()=>openTab(b.dataset.tab);
+  b.onkeydown=e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const T=['gen','rep','voc','bk'],t=T[(T.indexOf(b.dataset.tab)+(e.key==='ArrowRight'?1:3))%4];openTab(t);$('#tab-'+t).focus();e.preventDefault();}};
+});
+document.querySelectorAll('#settings input[data-k]').forEach(i=>i.addEventListener('input',()=>{settings[i.dataset.k]=+i.value;$('#o_'+i.dataset.k).textContent=secFmt(i.value);saveSet();}));
+$('#logcopy').onclick=()=>{const t=$('#asrlog');t.select();try{navigator.clipboard.writeText(t.value);}catch(e){document.execCommand('copy');}};
+$('#logclear').onclick=()=>{asrLog.length=0;$('#asrlog').value='';};
+$('#setreset').onclick=()=>{['endSent','endRep','turnStart'].forEach(k=>{settings[k]=SETDEF[k];});saveSet();syncSet();};
+$('#k_font').onchange=e=>{settings.font=e.target.value;applyUi();saveSet();};
+$('#k_ui').addEventListener('input',e=>{settings.ui=+e.target.value;$('#o_ui').textContent=settings.ui+' %';applyUi();saveSet();});
+const redraw=()=>{if(!$('#s3').hidden&&cues.length)render();};
+$('#k_shown').addEventListener('input',e=>{settings.shown=+e.target.value;$('#o_shown').textContent=shownFmt(settings.shown);saveSet();redraw();});
+$('#k_ahead').onchange=e=>{settings.ahead=e.target.checked;saveSet();redraw();};
+$('#k_place').onchange=e=>{settings.place=e.target.value;saveSet();redraw();};
+$('#k_clickJump').onchange=e=>{settings.clickJump=e.target.checked;saveSet();if(!$('#s3').hidden&&cues.length)render();};
+syncSet();
+
+/* ---------- Reconnaissance vocale (essai) ----------
+   Même principe que le moteur de voix : un « Recognizer » interchangeable (aujourd’hui celui du navigateur ; plus tard celui du téléphone). */
+const SRC=window.SpeechRecognition||window.webkitSpeechRecognition;
+const Recognizer={
+  ok:!!SRC,r:null,
+  start(h){
+    this.stop();const r=this.r=new SRC();
+    r.lang='fr-FR';r.continuous=true;r.interimResults=true;r.maxAlternatives=1;
+    r.onresult=e=>{const a=[];for(let i=0;i<e.results.length;i++)a.push(e.results[i][0].transcript);h.result(a);};
+    r.onerror=e=>h.error(e.error);
+    r.onend=()=>{if(this.r===r)h.end();};
+    try{r.start();}catch(err){h.error('start');}
+  },
+  stop(){const r=this.r;this.r=null;if(r){r.onresult=r.onerror=r.onend=null;try{r.abort();}catch(e){}}}
+};
+const asrLog=[];
+function logMiss(J,exp){
+  const miss=exp.filter((_,i)=>J.expSt[i]!=='ok');
+  if(!miss.length)return;
+  asrLog.push('attendu : '+exp.join(' ')+'\n  entendu : '+J.heard.map(x=>x.raw).join(' ')+'\n  ratés   : '+miss.map(x=>x+' ['+phon(x)+']').join(', ')+'\n  sons    : '+toks(J.heard.map(x=>x.raw).join(' ')).map(x=>x+' ['+phon(x)+']').join(' '));
+  if(asrLog.length>60)asrLog.shift();
+  const o=document.getElementById('asrlog');if(o)o.value=asrLog.join('\n\n');
+}
+let asrOn=false,asrLvl=.8,listening=false,advT=null,scores=[];
+/* Trois niveaux de tolérance (l’ancien « Stricte 95 % » est retiré : il retombe sur « Mot à mot ») */
+const ASR_MODES=[
+  {v:1,name:'Mot à mot',desc:'L’objectif est de réciter le texte aussi fidèlement que possible.',beh:'Le moteur demande une forte correspondance avec le texte et signale les écarts.'},
+  {v:.8,name:'Équilibrée',desc:'Quelques mots mal reconnus n’empêchent pas la progression.',beh:'Le moteur tolère certaines erreurs de transcription tout en vérifiant que la fin de la réplique a été atteinte.'},
+  {v:.6,name:'Souple',desc:'L’application privilégie la fluidité et l’enchaînement des dialogues.',beh:'Le moteur peut valider une réplique malgré des écarts plus importants, en privilégiant la continuité de la scène.'}];
+const snapLvl=v=>v>=.9?1:v>=.7?.8:.6;
+function setAsrLvl(v){
+  asrLvl=snapLvl(+v);const m=ASR_MODES.find(x=>x.v===asrLvl);
+  document.querySelectorAll('#asrmodes input').forEach(r=>{r.checked=+r.value===asrLvl;});
+  $('#asrname').textContent=m.name;$('#asrbeh').textContent=m.beh;
+}
+ASR_MODES.forEach(m=>{const r=el('input',{type:'radio',name:'asrlvl',value:m.v});$('#asrmodes').append(el('label',{},r,el('b',{},m.name),el('small',{},m.desc)));});
+setAsrLvl(asrLvl);
+const toks=t=>[...t.matchAll(WRE)].map(m=>nz(m[0]));
+function lev(a,b){
+  if(a===b)return 0;if(Math.abs(a.length-b.length)>2)return 9;
+  const d=[];for(let i=0;i<=a.length;i++)d[i]=[i];for(let j=1;j<=b.length;j++)d[0][j]=j;
+  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return d[a.length][b.length];
+}
+const WRE=/[\p{L}\p{N}]+/gu;
+const nz=w=>w.toLowerCase().replace(/ç/g,'s').replace(/œ/g,'oe').replace(/æ/g,'ae').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const heardTokens=t=>[...t.matchAll(WRE)].map(m=>({raw:m[0],n:nz(m[0])}));
+const tolOf=w=>w.length<=3?0:w.length<=6?1:2;
+/* chaque mot attendu est cherché dans l’ordre parmi les mots entendus (tolérance aux erreurs de reconnaissance) */
+/* ----- Phonétique française simplifiée -----
+   Chaque mot est ramené à une suite de sons (un caractère par son). Sons « faibles » (consonnes finales muettes, -er, -ent,
+   e muet) : ils peuvent manquer sans coût. Sons voisins (b/p, d/t, an/on…) : coût réduit. Voir PH_* ci-dessous. */
+const PV='aeiouyE@',PNV='(?![aeiouyE@nm])';
+const PRULES=[
+  ['oeil','xj'],['ail$','aj'],['eil$','ej'],['eau','o'],['eu|oeu','x'],['ou','U'],['au','o'],
+  ['oin'+PNV,'wI'],['ien'+PNV,'jI'],['(?:ain|aim|ein|eim)'+PNV,'I'],['(?:in|im|yn|ym)'+PNV,'I'],['(?:un|um)'+PNV,'I'],
+  ['(?:on|om)'+PNV,'O'],['(?:an|am|en|em)'+PNV,'A'],
+  ['oi','wa'],['oy(?=['+PV+'])','waj'],['ay(?=['+PV+'])','ej'],['y(?=['+PV+'])','j'],['y','i'],['ai|ei|E','e'],
+  ['u(?=[aeoiE@])','w'],
+  ['(?<=[aeou])ill','j'],['ill','ij'],['gn','N'],['ch','S'],['ph','f'],['th','t'],['qu','k'],['gu(?=[eiy])','g'],['g(?=[eiy])','Z'],['g','g'],
+  ['c(?=[eiy])','s'],['c','k'],['ss','s'],['(?<=['+PV+'])s(?=['+PV+'])','z'],['s','s'],['tion','sjO'],['x','ks'],['j','Z'],['h',''],
+  ['e(?=[^'+PV+'][aeiouyE])','_'],['e','e'],['a','a'],['i','i'],['o','o'],['u','y'],['@',''],['[bdfklmnprtvwz]','$&'],['[0-9]','$&']
+].map(([r,o])=>[new RegExp(r,'uy'),o]);
+const PFUNC={le:'l_',de:'d_',me:'m_',te:'t_',se:'s_',ce:'s_',ne:'n_',je:'Z_',que:'k_',les:'le',des:'de',mes:'me',tes:'te',ses:'se',ces:'se',
+  est:'e',et:'e',es:'e',ai:'e',a:'a',as:'a',c:'s',qu:'k',j:'Z',un:'I',une:'yn',ont:'O',sont:'sO',donc:'dOk'};
+const PWEAK={t:'1',d:'2',s:'3',z:'4',p:'5',g:'6'},PNORM={'1':'t','2':'d','3':'s','4':'z','5':'p','6':'g',Q:'A',R:'r','_':''};
+const phCache=new Map();
+function phon(w){
+  let r=phCache.get(w);if(r!==undefined)return r;
+  r=w;
+  if(PFUNC[w]!==undefined)r=PFUNC[w];
+  else if(!/^[0-9]+$/.test(w)){
+    let t=w,tail='';
+    if(t.length>4&&/ent$/.test(t)){t=t.slice(0,-3)+'@';tail='Q';}
+    else if(/(ais|ait|aient)$/.test(t))t=t.replace(/(ais|ait|aient)$/,'E');
+    else if(t.length>3&&/ai$/.test(t))t=t.slice(0,-2)+'E';
+    else if(t.length>=4&&/er$/.test(t)){t=t.slice(0,-2)+'E';tail='R';}
+    else if(t.length>2&&/ez$/.test(t))t=t.slice(0,-2)+'E';
+    else if(t.length>3&&/es$/.test(t))t=t.slice(0,-2)+'@';
+    else if(t.length>2&&/e$/.test(t))t=t.slice(0,-1)+'@';
+    let n=0;
+    while(n<2&&t.length>2&&/[tdszpgx]$/.test(t)){const c=t.slice(-1);t=t.slice(0,-1);if(PWEAK[c])tail=PWEAK[c]+tail;n++;}
+    t=t.replace(/([bcdfgklmnprtz])\1/g,'$1');
+    let out='';
+    for(let i=0;i<t.length;){
+      let hit=false;
+      for(const [re,o] of PRULES){re.lastIndex=i;const m=re.exec(t);if(m){out+=o==='$&'?m[0]:o;i+=Math.max(1,m[0].length);hit=true;break;}}
+      if(!hit)i++;
+    }
+    r=out+tail;
+  }
+  phCache.set(w,r);return r;
+}
+/* distance entre deux suites de sons : insertion/suppression d’un son faible peu coûteuse, sons voisins à demi-coût */
+const PPAIR=new Set(['bp','dt','gk','fv','sz','SZ','Ox','Ae','Ie','ey','ix','oU','iy','ij','Uw','AO','AI','IO','ea','xe','xo','oO','aA','eI','bm','dn']);
+const pnorm=c=>PNORM[c]!==undefined?PNORM[c]:c;
+function pdist(a,b){
+  const n=a.length,m=b.length;
+  const del=c=>PNORM[c]!==undefined?(c==='_'?.3:.2):1;
+  let prev=[0];for(let j=1;j<=m;j++)prev[j]=prev[j-1]+del(b[j-1]);
+  for(let i=1;i<=n;i++){
+    const cur=[prev[0]+del(a[i-1])];
+    for(let j=1;j<=m;j++){
+      const x=pnorm(a[i-1]),y=pnorm(b[j-1]);
+      const sub=x===y?0:(PPAIR.has(x+y)||PPAIR.has(y+x))?.5:1;
+      cur[j]=Math.min(prev[j]+del(a[i-1]),cur[j-1]+del(b[j-1]),prev[j-1]+sub);
+    }
+    prev=cur;
+  }
+  return prev[m];
+}
+const pthr=n=>n<=2?.1:n<=4?.65:n<=7?1.1:1.6;
+/* Élisions (qu’on, l’homme, j’ai…) : repli orthographique en plus de la phonétique */
+const ELIS=new Set(['qu','l','d','j','n','m','s','t','c','jusqu','lorsqu','puisqu','quoiqu']);
+/* chaque mot attendu est cherché dans l’ordre parmi les mots entendus.
+   Un mot est validé si l’orthographe est proche, ou si le SON correspond : un à un, ou en fenêtres de 1 à 3 mots de chaque côté
+   (« qu’on m’enferme » ≈ « con menferme »). m[i] = 1er mot entendu, m.he[i] = dernier mot entendu utilisé. */
+function alignGreedy(exp,heard){
+  const m=new Array(exp.length).fill(-1);m.he=[];let p=0;
+  const pe=exp.map(phon),ph=heard.map(phon);
+  for(let i=0;i<exp.length;i++){
+    const w=exp[i],nx=ELIS.has(w)&&i+1<exp.length?exp[i+1]:null,cc=nx?w+nx:'';
+    let done=false;
+    for(let j=p;j<heard.length&&!done;j++){
+      const h=heard[j];
+      if(lev(w,h)<=tolOf(w)){m[i]=j;m.he[i]=j;p=j+1;break;}
+      if(nx&&(lev(cc,h)<=tolOf(cc)+(cc.length>=4?1:0)||lev(nx,h)<=tolOf(nx))){m[i]=m[i+1]=j;m.he[i]=m.he[i+1]=j;p=j+1;i++;break;}
+      for(let ke=1;ke<=4&&i+ke<=exp.length&&!done;ke++){
+        const a=pe.slice(i,i+ke).join('');if(!a)continue;
+        for(let kh=1;kh<=3&&j+kh<=heard.length;kh++){
+          const b=ph.slice(j,j+kh).join('');if(!b)continue;
+          if((ke===1&&kh===1?pdist(a,b)<=pthr(a.length):a.length>=4&&b.length>=3&&pnorm(a[0])===pnorm(b[0])&&pdist(a,b)<=Math.min(pthr(a.length),.19*a.length))){
+            for(let t=0;t<ke;t++){m[i+t]=j;m.he[i+t]=j+kh-1;}
+            p=j+kh;i+=ke-1;done=true;break;
+          }
+        }
+      }
+    }
+  }
+  return m;
+}
+/* Meilleur alignement d’ensemble (plus longue suite commune) : évite qu’un mot oublié dans un groupe répété
+   (« ça se voit à leur visage, ça se voit à leur démarche ») aille s’accrocher au même mot du groupe suivant. */
+function alignBest(exp,heard){
+  const n=exp.length,k=heard.length,pe=exp.map(phon),ph=heard.map(phon);
+  const ok=(i,j)=>lev(exp[i],heard[j])<=tolOf(exp[i])||(pe[i]&&ph[j]&&pdist(pe[i],ph[j])<=pthr(pe[i].length));
+  const M=[];for(let i=0;i<n;i++){M[i]=[];for(let j=0;j<k;j++)M[i][j]=ok(i,j);}
+  const D=[];for(let i=0;i<=n;i++){D[i]=new Array(k+1).fill(0);}
+  for(let i=1;i<=n;i++)for(let j=1;j<=k;j++)D[i][j]=Math.max(D[i-1][j],D[i][j-1],M[i-1][j-1]?D[i-1][j-1]+1:0);
+  const m=new Array(n).fill(-1);m.he=[];
+  let i=n,j=k;
+  while(i>0&&j>0){
+    if(M[i-1][j-1]&&D[i][j]===D[i-1][j-1]+1){m[i-1]=j-1;m.he[i-1]=j-1;i--;j--;}
+    else if(D[i-1][j]>=D[i][j-1])i--;else j--;
+  }
+  return m;
+}
+/* Petit mot (à, y, de, en…) remplacé par un autre mot entre deux mots bien reconnus (« à leur » entendu « dans leur ») :
+   le moteur avale ou confond ces mots courts, on le valide plutôt que de bloquer la phrase. */
+const DROPPABLE=new Set(['a','y','de','d','en','au','du','et']);
+const DET=new Set(['le','la','les','un','une','des','de','du','ces','mes','tes','ses','ce','se','sa','son','mon','ma','ton','ta','leur','leurs','au','aux']);   /* déterminants que le moteur confond entre eux */   /* petits mots que le moteur n’écrit souvent pas du tout */
+function tolerateSmall(exp,m,heard){
+  for(let i=1;i<exp.length-1;i++){
+    if(m[i]>=0||m[i-1]<0||m[i+1]<0)continue;
+    const e=m.he&&m.he[i-1]!=null?m.he[i-1]:m[i-1],st=m[i+1];
+    if(st-e===2&&(exp[i].length<=2||DET.has(exp[i])&&DET.has(heard[e+1]))){m[i]=e+1;m.he[i]=e+1;}                         /* remplacé par un autre mot */
+    else if(st-e===1&&DROPPABLE.has(exp[i])){m[i]=e;m.he[i]=e;}   /* absent : validé sans mot entendu */
+  }
+  return m;
+}
+function alignWords(exp,heard){
+  const g=alignGreedy(exp,heard);
+  if(heard.length<2||exp.length<2)return tolerateSmall(exp,g,heard);
+  const b=alignBest(exp,heard);
+  return tolerateSmall(exp,b.filter(j=>j>=0).length>g.filter(j=>j>=0).length?b:g,heard);
+}
+function usedOf(m){const u=new Set();m.forEach((j,i)=>{if(j>=0){const e=m.he&&m.he[i]!=null?m.he[i]:j;for(let k=j;k<=e;k++)u.add(k);}});return u;}
+function lastHeard(m){let e=-1;m.forEach((j,i)=>{if(j>=0){const x=m.he&&m.he[i]!=null?m.he[i]:j;if(x>e)e=x;}});return e;}
+/* Reprise « depuis le début » : un mot entendu en plus qui redit le 1er mot de la réplique (suivi du 2e) = nouvelle tentative.
+   On rejuge alors uniquement à partir de là ; les mots de la tentative abandonnée sont écartés. */
+function attempt(exp,heard){
+  let start=0;
+  for(;;){
+    const h=heard.slice(start),m=alignWords(exp,h),used=usedOf(m);let nx=-1;
+    for(let j=1;j<h.length;j++){
+      if(!used.has(j)&&lev(exp[0],h[j])<=tolOf(exp[0])&&(j===h.length-1||exp.length<2||lev(exp[1],h[j+1])<=tolOf(exp[1]))
+        &&!(exp.length>2&&alignWords(exp,h.slice(0,j))[exp.length-1]>=0)){nx=j;break;}   /* déjà arrivé au bout de la phrase : ce qui suit est la suite (groupes répétés), pas une reprise */
+    }
+    if(nx<0)return {start,m,h};
+    start+=nx;
+  }
+}
+function matchRatio(exp,heard){if(!exp.length)return 0;return attempt(exp,heard).m.filter(j=>j>=0).length/exp.length;}
+/* Verdict mot par mot, séparé de l’affichage : expSt = mots attendus (ok / bad = sauté / pending), heard = mots entendus (ok / bad = en trop ou mal compris) */
+function judge(exp,rawHeard){
+  const a=attempt(exp,rawHeard.map(x=>x.n)),used=usedOf(a.m);
+  let last=-1;a.m.forEach((j,i)=>{if(j>=0)last=i;});
+  return {
+    expSt:exp.map((_,i)=>a.m[i]>=0?'ok':(i<last?'bad':'pending')),
+    heard:rawHeard.slice(a.start).map((x,j)=>({raw:x.raw,s:used.has(j)?'ok':'bad'})),
+    ratio:exp.length?a.m.filter(j=>j>=0).length/exp.length:0,
+    lm:a.m[exp.length-1]>=0,
+    end:used.size?a.start+lastHeard(a.m)+1:0
+  };
+}
+/* ----- affichage (deux vues branchées sur le même verdict ; mode choisi dans #wordview) ----- */
+function wrapWords(parent,text,i0){
+  let pos=0,i=i0;
+  for(const m of text.matchAll(WRE)){
+    if(m.index>pos)parent.append(text.slice(pos,m.index));
+    const sp=el('span',{className:'w'},m[0]);sp.dataset.i=i++;
+    sp.addEventListener('animationend',()=>sp.classList.remove('shake'));
+    parent.append(sp);pos=m.index+m[0].length;
+  }
+  if(pos<text.length)parent.append(text.slice(pos));
+  return i;
+}
+function setWord(sp,s){
+  if(sp.dataset.s===s)return;
+  sp.dataset.s=s;sp.classList.remove('ok','bad','shake');
+  if(s!=='pending')sp.classList.add(s,'shake');
+}
+function paintHeard(box,list){
+  while(box.children.length>list.length)box.lastChild.remove();
+  list.forEach((w,i)=>{
+    let sp=box.children[i];
+    if(!sp){sp=el('span',{className:'w'});sp.addEventListener('animationend',()=>sp.classList.remove('shake'));box.append(sp);}
+    if(sp.textContent!==w.raw)sp.textContent=w.raw;
+    setWord(sp,w.s);
+  });
+}
+function paintAll(J){
+  const mode=$('#wordview').value;
+  document.querySelectorAll('#ptxt .w').forEach(sp=>setWord(sp,mode==='scene'?'pending':(J.expSt[+sp.dataset.i]||'pending')));
+  if(hwBox)paintHeard(hwBox,mode==='bas'?[]:J.heard);
+  followWord();
+}
+/* réplique plus longue que le panneau : on fait défiler le panneau (et lui seul) pour garder le mot en cours en vue */
+function followWord(){
+  const box=$('#ptxt');if(!box||box.scrollHeight<=box.clientHeight+2)return;
+  const ws=box.querySelectorAll('.w');let t=null;
+  for(const sp of ws){if(sp.dataset.s!=='ok'&&sp.dataset.s!=='bad'){t=sp;break;}}
+  if(!t)t=ws[ws.length-1];if(!t)return;
+  const r=t.getBoundingClientRect(),b=box.getBoundingClientRect();
+  if(r.bottom>b.bottom-6||r.top<b.top+6)box.scrollTop+=r.top-b.top-box.clientHeight*0.3;
+}
+/* ----- Points de contrôle : la réplique est découpée en phrases, validées une par une et verrouillées ----- */
+function checkpoints(text){
+  const n=toks(text).length;if(!n)return [];
+  let out=[],a=0;
+  for(const pc of text.split(/(?<=[.!?…])\s+/)){
+    const c=toks(pc).length;if(!c)continue;
+    let parts=[c];
+    if(c>14){                       /* phrase longue : on coupe aux virgules, par morceaux d’au moins 5 mots, puis au besoin tous les ~12 mots */
+      const subs=pc.split(/(?<=[,;:—–])\s+/).map(x=>toks(x).length).filter(x=>x>0);
+      parts=[];let acc=0;
+      subs.forEach(x=>{acc+=x;if(acc>=5){parts.push(acc);acc=0;}});
+      if(acc){if(parts.length&&acc<4)parts[parts.length-1]+=acc;else parts.push(acc);}
+      parts=parts.flatMap(x=>{if(x<=18)return [x];const k=Math.ceil(x/12),b=Math.floor(x/k),r=[];let left=x;for(let i=0;i<k;i++){const v=i===k-1?left:b;r.push(v);left-=v;}return r;});
+      if(parts.reduce((u,v)=>u+v,0)!==c)parts=[c];
+    }
+    parts.forEach(x=>{out.push({a,b:a+x});a+=x;});
+  }
+  const mg=[];out.forEach(r=>{const p=mg[mg.length-1];if(p&&p.b-p.a<3)p.b=r.b;else mg.push({a:r.a,b:r.b});});
+  if(mg.length>1&&mg[mg.length-1].b-mg[mg.length-1].a<2){const l=mg.pop();mg[mg.length-1].b=l.b;}
+  return mg;
+}
+function newTurn(text){
+  const ex=toks(text);
+  return {sent:checkpoints(text).map(r=>({exp:ex.slice(r.a,r.b)})).filter(x=>x.exp.length),cp:0,pos:0,rs:null,fro:[],fh:[],ratios:[]};
+}
+/* rejoue les phrases déjà verrouillées à partir d’un point du flux (quand tu reprends ta réplique depuis le début) */
+function replayPos(T,N,start){
+  let p=start;
+  for(let k=0;k<T.cp;k++){const mm=alignWords(T.sent[k].exp,N.slice(p));const e=lastHeard(mm);if(e>=0)p+=e+1;}
+  return p;
+}
+function evalTurn(T,full,force){
+  const Hs=heardTokens(full),N=Hs.map(x=>x.n),m=T.sent.length;
+  let pos=T.rs!=null?replayPos(T,N,T.rs):Math.min(T.pos,N.length);
+  /* reprise depuis le début de la réplique : un mot qui ne correspond pas à la phrase en cours mais redit le début de la 1re phrase */
+  if(T.cp>0&&T.cp<m){
+    const w=N.slice(pos),used=usedOf(alignWords(T.sent[T.cp].exp,w)),e0=T.sent[0].exp;
+    if(e0.length>1)for(let j=0;j<w.length-1;j++){
+      if(!used.has(j)&&lev(e0[0],w[j])<=tolOf(e0[0])&&lev(e0[1],w[j+1])<=tolOf(e0[1])){T.rs=pos+j;pos=replayPos(T,N,T.rs);break;}
+    }
+  }
+  let cur=null,cand=false;
+  while(T.cp<m){
+    const w=Hs.slice(pos),J=judge(T.sent[T.cp].exp,w);cur=J;
+    if(J.ratio>=asrLvl&&(J.lm||force)){            /* phrase validée : point de contrôle */
+      T.fro[T.cp]=J.expSt.map(x=>x==='pending'?'bad':x);T.fh[T.cp]=J.heard;T.ratios.push(J.ratio);logMiss(J,T.sent[T.cp].exp);
+      pos+=J.end;T.pos=pos;T.rs=null;T.cp++;cur=null;continue;
+    }
+    let skipped=false;
+    if(asrLvl<1)for(let d=1;d<=3&&T.cp+d<m;d++){   /* phrase(s) oubliée(s) : une des suivantes est dite en entier */
+      const J2=judge(T.sent[T.cp+d].exp,w);
+      if(J2.ratio>=asrLvl&&J2.lm){
+        T.fro[T.cp]=J.expSt.map(x=>x==='pending'?'bad':x);T.fh[T.cp]=J.heard;T.ratios.push(0);
+        for(let q=1;q<d;q++){T.fro[T.cp+q]=T.sent[T.cp+q].exp.map(()=>'bad');T.fh[T.cp+q]=[];T.ratios.push(0);}
+        T.fro[T.cp+d]=J2.expSt.map(x=>x==='pending'?'bad':x);T.fh[T.cp+d]=J2.heard;T.ratios.push(J2.ratio);
+        pos+=J2.end;T.pos=pos;T.rs=null;T.cp+=d+1;cur=null;skipped=true;break;
+      }
+    }
+    if(skipped)continue;
+    cand=J.ratio>=asrLvl;break;
+  }
+  const exp=[];
+  T.sent.forEach((S,k)=>exp.push(...(k<T.cp?T.fro[k]:(k===T.cp&&cur?cur.expSt:S.exp.map(()=>'pending')))));
+  return {J:{expSt:exp,heard:[].concat(...T.fh.slice(0,T.cp),cur?cur.heard:[])},done:T.cp>=m,cand,ratio:cur?cur.ratio:1};
+}
+function avgTxt(){return scores.length?' Précision moyenne : '+Math.round(100*scores.reduce((a,b)=>a+b,0)/scores.length)+' %.':'';}
+/* Une seule session micro pour toute la scène (au lieu d’une par réplique) : le navigateur ne redemande donc
+   l’autorisation qu’au démarrage, ou si lui-même coupe la session. Hors des tours du comédien, les résultats sont ignorés. */
+let sess=false,lastN=0,L=null,hwBox=null,lastAtt=null;
+function listenPause(){if(L&&lastAtt&&lastAtt.expSt&&L.cp<L.sent.length)logMiss(lastAtt,L.sent[L.cp].exp);
+  listening=false;if(L)clearTimeout(L.lockT);L=null;lastAtt=null;clearTimeout(advT);}
+function runEval(force){
+  const T=L;if(!T)return;
+  const R=evalTurn(T,T.full,force);
+  lastAtt=R.J;paintAll(R.J);
+  const hw=heardTokens(T.full).map(x=>x.raw),m=T.sent.length;
+  $('#heard').textContent='J’entends : '+(hw.length>12?'… ':'')+hw.slice(-12).join(' ');
+  $('#status').textContent='À toi ! 🎤 '+(m>1?'phrase '+Math.min(T.cp+1,m)+'/'+m+' · ':'')+Math.round(R.ratio*100)+' %';
+  clearTimeout(T.lockT);clearTimeout(advT);
+  if(R.done)advT=setTimeout(()=>{if(L===T&&listening&&T.myTok===tok){scores.push(T.ratios.reduce((u,v)=>u+v,0)/Math.max(1,T.ratios.length));listenPause();go(idx+1);}},Math.round(settings.endRep*1000));
+  else if(R.cand)T.lockT=setTimeout(()=>{if(L===T&&listening)runEval(true);},Math.round(settings.endSent*1000));
+}
+function listenStop(){listenPause();sess=false;Recognizer.stop();}
+function sessionOpen(){
+  if(sess)return;sess=true;lastN=0;
+  Recognizer.start({
+    result:a=>{
+      lastN=a.length;
+      if(!L||!listening||L.myTok!==tok||L.skip===null)return;
+      L.cur=a.slice(L.skip).join(' ').trim();
+      L.full=(L.base+' '+L.cur).trim();runEval(false);
+    },
+    end:()=>{
+      sess=false;
+      if(L&&listening&&L.restarts++<20){
+        L.base=(L.base+' '+L.cur).trim();L.cur='';L.skip=0;
+        const mine=L;setTimeout(()=>{if(L===mine&&listening)sessionOpen();},250);
+      }
+    },
+    error:code=>{
+      if(code==='no-speech'||code==='aborted')return;
+      listenStop();
+      if(code==='not-allowed'||code==='service-not-allowed'){asrOn=false;$('#asr').checked=false;
+        $('#heard').textContent='Le navigateur bloque le micro pour cette page : voir Paramètres › Mode vocal › Tester le micro.';}
+      else $('#heard').textContent='Reconnaissance : erreur ('+code+').';
+    }
+  });
+}
+function listenStart(c){
+  listenPause();
+  if(!asrOn||!Recognizer.ok||!playing)return;
+  listening=true;$('#heard').textContent='🎤 Je t’écoute…';
+  const mine=L=Object.assign(newTurn(c.text),{myTok:tok,base:'',cur:'',full:'',skip:null,restarts:0});
+  setTimeout(()=>{
+    if(L!==mine||!listening)return;
+    if(sess)mine.skip=lastN;            /* on ignore ce que le micro a capté avant ton tour (voix des partenaires) */
+    else{mine.skip=0;sessionOpen();}
+  },Math.round(settings.turnStart*1000));
+}
+$('#asr').disabled=!Recognizer.ok;
+$('#asrnote').textContent=Recognizer.ok?
+  "À ton tour, l’appli t’écoute phrase par phrase : chaque phrase validée est verrouillée (point de contrôle), et elle passe à la suite quand toute ta réplique est validée. Les mots reconnus s’affichent en cyan quand ils sont justes et en magenta sinon ; si tu reprends ta phrase depuis le début, l’appli rejuge à partir de là. « Suivante » reste toujours disponible. Avec le micro du navigateur, l’audio est en général traité par un serveur distant (Google, Microsoft ou Apple selon le navigateur).":
+  "Ce navigateur ne propose pas la reconnaissance vocale (essaie Chrome ou Edge).";
+$('#asr').onchange=e=>{asrOn=e.target.checked;if(!asrOn){listenStop();$('#heard').textContent='';}
+  else if(playing&&cues[idx]&&cues[idx].k===me)listenStart(cues[idx]);save();};
+$('#asrmodes').addEventListener('change',e=>{if(e.target.name==='asrlvl'){setAsrLvl(e.target.value);save();}});
+$('#wordview').onchange=()=>{if(lastAtt)paintAll(lastAtt);save();};
+
+/* diagnostic du micro : indique précisément ce qui bloque */
+async function micDiag(){
+  const out=[],nl=String.fromCharCode(10);
+  out.push('Page affichée dans un cadre (iframe) : '+(window.top!==window?'oui':'non'));
+  out.push('Contexte sécurisé (https) : '+(isSecureContext?'oui':'non'));
+  try{const pp=document.permissionsPolicy||document.featurePolicy;if(pp&&pp.allowsFeature)out.push('Micro autorisé par la page hôte : '+(pp.allowsFeature('microphone')?'oui':'NON'));}catch(e){}
+  try{const st=await navigator.permissions.query({name:'microphone'});out.push('Permission du navigateur : '+st.state);}catch(e){out.push('Permission du navigateur : illisible');}
+  try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop());out.push('Accès au micro : OK');}catch(e){out.push('Accès au micro : refusé ('+e.name+')');}
+  out.push('Reconnaissance vocale : '+(Recognizer.ok?'disponible':'absente de ce navigateur'));
+  $('#diag').textContent=out.join(nl);
+}
+$('#micdiag').onclick=micDiag;
+
+/* ---------- Extraction du PDF (avec la mise en page) ---------- */
+async function pdfText(pdf){
+  const L=[];
+  for(let p=1;p<=pdf.numPages;p++){
+    const pg=await pdf.getPage(p),H=pg.view[3]-pg.view[1];
+    const its=(await pg.getTextContent()).items.filter(i=>i.str.trim());
+    its.sort((a,b)=>b.transform[5]-a.transform[5]);
+    const rows=[];
+    for(const it of its){const y=it.transform[5],r=rows[rows.length-1];
+      if(r&&Math.abs(r.y-y)<=3)r.it.push(it);else rows.push({y,it:[it]});}
+    for(const r of rows){
+      r.it.sort((a,b)=>a.transform[4]-b.transform[4]);
+      let s='',end=null;
+      for(const i of r.it){
+        const x=i.transform[4];
+        if(end!==null){const g=x-end;if(g>14)s+='\t';else if(g>1&&!/\s$/.test(s)&&!/^\s/.test(i.str))s+=' ';}
+        s+=i.str;end=x+i.width;
+      }
+      L.push({t:s.replace(/ {2,}/g,' ').trim(),y:r.y,H});
+    }
+  }
+  const cnt={};L.forEach(l=>cnt[l.t]=(cnt[l.t]||0)+1);
+  const margin=l=>l.y<l.H*.07||l.y>l.H*.93;
+  return L.filter(l=>!(margin(l)&&(/^\W*(page\s*)?\d+\W*$/i.test(l.t)||cnt[l.t]>=3))).map(l=>l.t).join('\n');
+}
+
+/* ---------- Détection des personnages, sans syntaxe imposée ---------- */
+const key=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,' ').trim();
+const SKIP=/^(ACTE|SCENE|INT|EXT|FIN|CUT|FADE|PAGE|TABLEAU|PROLOGUE|EPILOGUE|CHAPITRE|PARTIE|NOTE|DISTRIBUTION|PERSONNAGES)\b/;
+const STOP=new Set("LE LA LES UN UNE IL ELLE ET MAIS OU DONC NON OUI JE TU NOUS VOUS ILS ELLES CE CETTE SI QUAND PUIS ALORS ON DE DU DES EN A AH OH".split(' '));
+const T="[^\\s:：.\\-–—,;!?()«»\"]*";
+const LAB="[A-ZÀ-ÖØ-Þ]"+T+"(?: (?:[A-ZÀ-ÖØ-Þ0-9]"+T+"|de|du|des|la|le|von|van))*";
+const PAR="(\\s*\\([^)]*\\))?";
+const rA=new RegExp("^("+LAB+")"+PAR+"\\s*(?:[:：]\\s*|\\t+)(\\S.*)$");      /* Nom : réplique  ou  Nom⇥réplique */
+const rC=new RegExp("^("+LAB+")"+PAR+"\\s*[.\\-–—]\\s+(\\S.*)$");           /* NOM. réplique */
+const rB=new RegExp("^("+LAB+")"+PAR+"\\s*[:：.]?$");                       /* NOM seul sur sa ligne */
+function mk(l,rest,par){const k=key(l),w=k.split(' ');
+  if(w.length>4||k.length<2||/^\d+$/.test(k)||SKIP.test(k)||(w.length===1&&STOP.has(k)))return null;
+  return {l,k,rest:rest||'',par:par||''};}
+function cueOf(line){
+  let m;
+  if((m=line.match(rA)))return mk(m[1],m[3],m[2]);
+  if((m=line.match(rC))&&m[1]===m[1].toUpperCase())return mk(m[1],m[3],m[2]);
+  if(line.length<45&&(m=line.match(rB)))return mk(m[1],'',m[2]);
+  return null;
+}
+function parse(text){
+  const lines0=text.split(/\r?\n/).map(s=>s.trim()).filter(s=>s&&!/^\W*(page\s*)?\d+\W*$/i.test(s));
+  /* 1) quels noms jouent le rôle de personnage ? ceux qui reviennent, ou qui suivent la convention MAJUSCULES */
+  const lines=[];let buf=null;lines0.forEach(l=>{if(buf!==null){buf+=' '+l;if(l.includes(')')||l.includes(']')){lines.push(buf);buf=null;}return;}const o=l.split('(').length+l.split('[').length,c=l.split(')').length+l.split(']').length;if(o>c&&(l[0]==='('||l[0]==='[')){buf=l;return;}lines.push(l);});if(buf)lines.push(buf);
+  const cand={};
+  lines.forEach(l=>{const c=cueOf(l);if(!c)return;
+    const o=cand[c.k]=cand[c.k]||{n:0,caps:true,l:c.l.toUpperCase()};
+    o.n++;if(c.l!==c.l.toUpperCase())o.caps=false;});
+  const ks=Object.keys(cand);
+  const acc=ks.filter(k=>cand[k].n>=2);
+  if(acc.length<2||acc.filter(k=>cand[k].caps).length>acc.length/2)
+    ks.forEach(k=>{if(cand[k].caps&&!acc.includes(k))acc.push(k);});
+  /* 2) découpage en répliques */
+  const set=new Set(acc),out=[];let cur=null,spk=null;
+  const push=t=>{t=t.replace(/^[-–—] */,'').trim();if(!t||!spk)return;if(!cur){cur={k:spk,text:''};out.push(cur);}cur.text+=(cur.text?' ':'')+t;};
+  const feed=t=>{let s='',d=null;for(const ch of t){if(d===null&&(ch==='('||ch==='[')){push(s);s='';d='';}else if(d!==null&&(ch===')'||ch===']')){d=d.trim();if(d){out.push({dir:true,text:d});cur=null;}d=null;}else if(d!==null)d+=ch;else s+=ch;}if(d!==null)s+=' '+d;push(s);};
+  const add=(c,t)=>{t=t.replace(/\([^)]*\)/g,'').replace(/^[\-–—]\s*/,'').replace(/\t+/g,' ').trim();if(t)c.text+=(c.text?' ':'')+t;};
+  lines.forEach(l=>{
+    
+    if(l===l.toUpperCase()&&l.length<60&&SKIP.test(key(l))){cur=null;spk=null;return;}
+    const c=cueOf(l);
+    if(c&&set.has(c.k)){disp[c.k]=disp[c.k]||cand[c.k].l;spk=c.k;cur=null;const d=c.par.trim().slice(1,-1).trim();if(d&&!['VO','OS','OFF','CONTD','SUITE'].includes(d.replace(/[. '’]/g,'').toUpperCase()))out.push({dir:true,text:d});feed(c.rest);}
+    else feed(l);
+  });
+  return out.filter(c=>c.dir||c.text);
+}
+/* ---------- Navigation : accueil (import + mes scripts) ⇄ page du script (personnages, répétition, panneau du bas) ---------- */
+function showScript(push){
+  $('#sharemsg').textContent='';
+  $('#home').hidden=true;$('#scriptview').hidden=false;window.scrollTo(0,0);
+  if(push){try{history.pushState({v:'script'},'');}catch(e){}}
+}
+function showHome(fromPop){
+  listenStop();playing=false;tok++;ltok++;engine.stop();
+  if(script){clearTimeout(saveT);try{save();}catch(e){}}
+  $('#prompter').hidden=true;$('#s3').hidden=true;
+  $('#scriptview').hidden=true;$('#home').hidden=false;
+  $('#msg').textContent='';$('#txt').hidden=true;$('#parse').hidden=true;$('#paste').classList.remove('on');$('#paste').setAttribute('aria-expanded','false');
+  script=null;renderLib();window.scrollTo(0,0);
+  if(!fromPop){try{if(history.state&&history.state.v==='script')history.back();}catch(e){}}
+}
+$('#back').onclick=()=>showHome(false);
+window.addEventListener('popstate',e=>{if(reh){exitReh(true);return;}if(e.state&&e.state.v==='script')return;if(!$('#scriptview').hidden)showHome(true);});
+
+/* ---------- Sauvegarde : exporter / importer tous les scripts ; Partager un script ---------- */
+const PACK=list=>({app:'repete',format:1,exported:new Date().toISOString(),build:VFULL,scripts:list});
+const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function dlFile(name,text){
+  const a=el('a',{href:URL.createObjectURL(new Blob([text],{type:'application/json'})),download:name});
+  document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+const impMsg=t=>{$('#impmsg').textContent=t;};
+function refreshBk(){const n=Store.ok?Store.index().length:0;$('#exp').disabled=!n;$('#imp').disabled=!Store.ok;}
+$('#exp').onclick=()=>{
+  const list=Store.index().map(x=>Store.load(x.id)).filter(Boolean);
+  if(!list.length){impMsg('Aucun script à exporter.');return;}
+  dlFile('repete-scripts-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(PACK(list)));
+  impMsg(list.length+(list.length>1?' scripts exportés':' script exporté')+' dans un fichier : garde-le en lieu sûr, ou utilise-le pour retrouver tes scripts sur une autre machine.');
+};
+$('#imp').onclick=()=>$('#impfile').click();
+let impPending=null;
+const okScript=x=>x&&typeof x==='object'&&typeof x.id==='string'&&x.id.length>0&&x.id.length<64&&typeof x.title==='string'&&typeof x.text==='string';
+$('#impfile').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  let d;try{d=JSON.parse(await f.text());}catch(x){impMsg('Fichier illisible : ce n’est pas un export de Répète.');return;}
+  const list=(d&&d.app==='repete'&&Array.isArray(d.scripts))?d.scripts.filter(okScript):[];
+  if(!list.length){impMsg('Aucun script valide dans ce fichier.');return;}
+  const have=new Set(Store.index().map(x=>x.id));
+  const fresh=list.filter(x=>!have.has(x.id)),dup=list.filter(x=>have.has(x.id));
+  if(!dup.length){doImport(fresh,[],'skip');return;}
+  impPending={fresh,dup};
+  $('#impq').textContent=list.length+(list.length>1?' scripts trouvés':' script trouvé')+' dans le fichier : '+fresh.length+' nouveau(x), '+dup.length+' déjà présent(s) sur cet appareil ('+dup.map(x=>'« '+x.title+' »').join(', ')+'). Que faire des scripts déjà présents ?';
+  const d2=$('#impdlg');if(d2.showModal)d2.showModal();else d2.setAttribute('open','');
+};
+function doImport(fresh,dup,mode){
+  let ok=0,fail=0,rep=0,both=0,skip=0;
+  const put=x=>{x.updated=typeof x.updated==='number'?x.updated:Date.now();x.n=+x.n||0;return Store.save(x);};
+  fresh.forEach(x=>{put(x)?ok++:fail++;});
+  dup.forEach(x=>{
+    if(mode==='rep'){put(x)?rep++:fail++;}
+    else if(mode==='both'){put(Object.assign({},x,{id:newId(),title:x.title+' (copie)'}))?both++:fail++;}
+    else skip++;
+  });
+  renderLib();refreshBk();
+  const parts=[];if(ok)parts.push(ok+' nouveau(x)');if(rep)parts.push(rep+' remplacé(s)');if(both)parts.push(both+' ajouté(s) en copie');if(skip)parts.push(skip+' ignoré(s)');
+  impMsg((ok+rep+both?'Importé : '+parts.join(', ')+'.':'Rien d’importé'+(skip?' ('+skip+' déjà présent(s), ignoré(s))':'')+'.')+(fail?' '+fail+' script(s) n’ont pas pu être enregistrés (stockage plein ?).':''));
+}
+['rep','both','skip'].forEach(m=>{$('#imp_'+m).onclick=()=>{$('#impdlg').close();if(impPending){doImport(impPending.fresh,impPending.dup,m);impPending=null;}};});
+$('#imp_cancel').onclick=$('#impclose').onclick=()=>{$('#impdlg').close();impPending=null;impMsg('Import annulé.');};
+/* Partager le script ouvert : feuille de partage du système si disponible, sinon fichier téléchargé */
+async function shareScript(){
+  if(!script)return;const msg=t=>{$('#sharemsg').textContent=t;};
+  const c=JSON.parse(JSON.stringify(snapshot()));
+  delete c.me;delete c.idx;delete c.hide;                         /* ton rôle et ta progression restent à toi */
+  if(c.set)Object.values(c.set).forEach(o=>{delete o.vid;});if(c.dir)delete c.dir.vid;   /* les voix dépendent de l’appareil */
+  const name=(script.title||'script').replace(/[^\p{L}\p{N}]+/gu,'-').replace(/^-|-$/g,'').slice(0,50)+'.json';
+  const text=JSON.stringify(PACK([c]));
+  try{
+    const file=new File([text],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:script.title,text:'Script Répète : '+script.title});msg('Script partagé.');return;}
+  }catch(e){if(e&&e.name==='AbortError')return;}
+  dlFile(name,text);msg('Fichier « '+name+' » téléchargé : envoie-le à ton partenaire, qui l’ouvrira avec Paramètres › Sauvegarde › « Importer mes scripts ».');
+}
+$('#share').onclick=shareScript;
+function analyse(text,saved){
+  listenStop();playing=false;tok++;ltok++;engine.stop();disp={};raw=parse(text);chars={};me=null;edits={};gone=new Set();
+  const n={};raw.forEach(c=>{if(!c.dir)n[c.k]=(n[c.k]||0)+1;});
+  const ks=Object.keys(n);
+  if(ks.length<2){
+    $('#msg').textContent="Je n’ai pas réussi à repérer au moins deux personnages. Vérifie que le PDF contient du texte (pas une image scannée), ou colle le texte.";
+    script=null;return;}
+  ks.forEach((k,i)=>{chars[k]={name:disp[k],n:n[k],v:0,pitch:[1,.8,1.2,.9,1.1,.7][i%6],map:'keep',col:i%PAL.length,vol:1};});
+  ks.forEach((k,i)=>fixVoice(chars[k],i));dirv={on:false,ign:false,v:0,pitch:.85,vol:1,col:-1};fixVoice(dirv,ks.length);if(saved)applySaved(saved);
+  const nd=raw.filter(c=>c.dir).length;$('#msg').textContent=(raw.length-nd)+" répliques, "+ks.length+" personnages et "+nd+" didascalie"+(nd>1?"s":"")+" trouvés.";
+  $('#s3').hidden=true;$('#prompter').hidden=true;showScript(true);
+  rebuild();
+  resumeAt=(saved&&saved.idx>0&&saved.idx<cues.length)?saved.idx:0;idx=resumeAt;
+  $('#resume').hidden=!resumeAt;$('#resume').textContent='Reprendre à la réplique '+(resumeAt+1)+' / '+cues.length;
+  $('#stitle').value=script?script.title:'';$('#stitle').hidden=true;$('#sname').parentElement.hidden=false;showTitle();
+  renderChars();save();
+}
+const rtext=i=>edits[i]&&edits[i].t!=null?edits[i].t:raw[i].text;
+const rid=i=>'#'+String(i+1).padStart(Math.max(2,String(raw.length).length),'0');
+function rebuild(){
+  const keep=cues[idx]?cues[idx].ri:-1;
+  cues=raw.map((c,i)=>{
+    const e=edits[i];if(e&&(e.del||e.off))return null;
+    const tx=rtext(i);if(!tx.trim())return null;
+    if(c.dir)return dirv.ign||gone.has('__dir')?null:{dir:true,k:'__dir',name:'Didascalie',text:tx,ri:i};
+    if(gone.has(c.k))return null;
+    const m=chars[c.k].map,t=m==='keep'?c.k:m;
+    if(t==='ignore'||gone.has(t))return null;
+    if(t==='__dir')return dirv.ign||gone.has('__dir')?null:{dir:true,k:'__dir',name:'Didascalie',text:tx,ri:i};   /* fusionné avec les didascalies */
+    return {k:t,name:chars[t].name,text:tx,ri:i};
+  }).filter(Boolean);
+  if(keep>=0){const j=cues.findIndex(c=>c.ri>=keep);idx=j<0?cues.length:j;}
+  if(me&&(chars[me].map!=='keep'||gone.has(me)))me=null;
+}
+
+/* ---------- Import ---------- */
+async function readPdf(file){
+  $('#msg').textContent="Lecture du PDF…";
+  try{
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const text=await pdfText(await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise);
+    if(text.trim().length<20){$('#msg').textContent="Ce PDF semble être une image scannée : je ne trouve pas de texte à lire.";return;}
+    script=newScript(file.name.replace(/\.pdf$/i,''),text);analyse(text);
+  }catch(e){$('#msg').textContent="Impossible de lire ce PDF. Tu peux copier-coller le texte à la place.";}
+}
+$('#pdf').addEventListener('change',e=>{if(e.target.files[0])readPdf(e.target.files[0]);});
+$('#paste').setAttribute('aria-expanded','false');
+$('#paste').onclick=()=>{const open=$('#txt').hidden;$('#txt').hidden=!open;$('#parse').hidden=!open;$('#paste').setAttribute('aria-expanded',open);$('#paste').classList.toggle('on',open);if(open)$('#txt').focus();};   /* 2e appui : on referme, le texte saisi reste en mémoire */
+$('#parse').onclick=()=>{const t=$('#txt').value;script=newScript('Texte collé – '+new Date().toLocaleDateString('fr-FR'),t);analyse(t);};
+$('#demo').onclick=()=>{
+  const d=`MARIE
+Tu es venu.
+PAUL (il pose son manteau)
+Je n’avais pas le choix.
+MARIE
+On a toujours le choix, Paul. Même quand on prétend le contraire.
+LE NOTAIRE
+Mesdames, messieurs, la lecture du testament va commencer. Veuillez vous asseoir.
+PAUL
+Je préfère rester debout.
+MARIE
+Alors reste debout. Mais ne dis rien.
+LE NOTAIRE
+« Je lègue la maison à celui qui saura y revenir. »
+PAUL
+Elle l’a écrit pour nous deux.
+MARIE
+Non. Elle l’a écrit pour moi.`;
+  $('#txt').value=d;$('#txt').hidden=false;$('#parse').hidden=false;script=newScript('Exemple – Le testament',d);analyse(d);
+};
+
+/* ---------- Personnages : rôle, statut, voix ---------- */
+const SAMPLE="Voici ma voix pour la répétition.",SAMPLE_DIR="Il entre, puis s’assoit lentement.";
+const obj=id=>id==='__dir'?dirv:chars[id];
+const PEN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+$('#sedit').innerHTML=PEN;
+const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>';
+const BIN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
+function refreshScene(){if(!$('#s3').hidden){idx=Math.min(idx,cues.length);go(idx);}}
+function renderChars(){
+  const ul=$('#chars');ul.innerHTML='';
+  const keeps=Object.keys(chars).filter(k=>chars[k].map==='keep'&&!gone.has(k));
+  let n=0;
+  const addRow=(id,name,count,isDir)=>{
+    const o=obj(id),on=isDir?dirv.on:o.map==='keep',rid='r'+(n++),li=el('li');
+    const sw=el('button',{className:'sw',title:'Changer la couleur',ariaLabel:'Changer la couleur : '+name});
+    sw.style.setProperty('--c',colOf(id));sw.dataset.c=id;
+    const rad=isDir?el('span',{className:'rd'}):el('input',{type:'radio',name:'me',id:rid,value:id,checked:me===id,disabled:!on,className:'rd',ariaLabel:'Mon rôle : '+name});
+    const off=raw.filter((c,i)=>(isDir?(c.dir||(chars[c.k]&&chars[c.k].map==='__dir'&&!gone.has(c.k))):(!c.dir&&c.k===id))&&edits[i]&&edits[i].off&&!edits[i].del).length;
+    const lab=el(isDir?'span':'label',{className:'nm'},name+' ',el('small',{},'('+count+(isDir?' didasc.':' répl.')+(off?', '+off+' désactivée'+(off>1?'s':''):'')+')'));
+    if(!isDir)lab.htmlFor=rid;
+    const st=el('select',{className:'st',ariaLabel:isDir?'Lecture des didascalies':'Statut de '+name});
+    if(isDir){st.dataset.d='1';st.add(new Option('Silencieuses','off',false,!dirv.on&&!dirv.ign));st.add(new Option('Lues à voix haute','on',false,dirv.on));st.add(new Option('Ignorées','ign',false,dirv.ign));}
+    else{st.dataset.m=id;st.add(new Option('Personnage','keep',false,o.map==='keep'));st.add(new Option('Ignorer','ignore',false,o.map==='ignore'));
+      keeps.filter(x=>x!==id).forEach(x=>st.add(new Option('Fusionner avec '+chars[x].name,x,false,o.map===x)));
+      if(!gone.has('__dir'))st.add(new Option('Fusionner avec les didascalies','__dir',false,o.map==='__dir'));}
+    const vs=el('select',{className:'vs',ariaLabel:'Voix : '+name,disabled:!on||!voices.length});vs.dataset.v=id;
+    voices.forEach((x,j)=>vs.add(new Option(x.label,j,false,j===o.v)));
+    const vo=el('input',{type:'range',className:'vol',min:0,max:1,step:.05,value:o.vol,disabled:!on,ariaLabel:'Volume : '+name,title:'Volume'});vo.dataset.vol=id;
+    const tb=el('button',{className:'listen',disabled:!on,title:'Écouter la voix',ariaLabel:'Écouter la voix : '+name});tb.innerHTML=SPK;tb.dataset.t=id;
+    const eb=el('button',{className:'ic',title:'Modifier les répliques',ariaLabel:'Modifier les répliques : '+name});eb.innerHTML=PEN;eb.dataset.e=id;
+    const acts=el('div',{className:'acts'},eb);
+    {const db=el('button',{className:'ic',title:isDir?'Supprimer les didascalies':'Supprimer ce personnage',ariaLabel:isDir?'Supprimer les didascalies':'Supprimer le personnage : '+name});db.innerHTML=BIN;db.dataset.del=id;acts.append(db);}
+    li.append(sw,rad,el('div',{className:'nmcol'},lab,acts),el('div',{className:'ctl'},el('div',{className:'sels'},st,vs),el('div',{className:'volr'},vo,tb)));
+    ul.append(li);
+  };
+  Object.keys(chars).filter(k=>!gone.has(k)).forEach(k=>addRow(k,chars[k].name,raw.filter((c,i)=>!c.dir&&c.k===k&&!(edits[i]&&edits[i].del)).length,false));
+  const gb=$('#gonein');$('#gonebar').hidden=!gone.size;gb.innerHTML='';$('#gonen').textContent=gone.size?'('+gone.size+')':'';
+  if(gone.size){[...gone].forEach(k=>{const nm=k==='__dir'?'Didascalies':chars[k].name,b=el('button',{},'↺ '+nm);b.dataset.rest=k;b.title='Restaurer : '+nm;gb.append(b);});}
+  const isD=c=>c.dir||(chars[c.k]&&chars[c.k].map==='__dir'&&!gone.has(c.k));
+  const nd=raw.filter((c,i)=>isD(c)&&!(edits[i]&&edits[i].del)).length;
+  if(nd&&!gone.has('__dir'))addRow('__dir','Didascalies',nd,true);
+  $('#charn').textContent='('+$('#chars').children.length+')';
+  $('#start').disabled=$('#resume').disabled=!me;
+  voiceHint();
+}
+$('#chars').addEventListener('change',e=>{
+  const d=e.target.dataset,t=e.target;
+  if(t.name==='me'){me=t.value;$('#start').disabled=$('#resume').disabled=false;}
+  else if(d.m){chars[d.m].map=t.value;
+    if(t.value!=='keep')Object.keys(chars).forEach(o=>{if(chars[o].map===d.m)chars[o].map='keep';});
+    rebuild();renderChars();}
+  else if(d.d){dirv.ign=t.value==='ign';dirv.on=t.value==='on';rebuild();renderChars();if(!$('#s3').hidden&&cues.length)go(idx);}
+  else if(d.v){const o=obj(d.v);o.v=+t.value;o.vid=voices[o.v]&&voices[o.v].id;}
+  else if(d.vol)say(d.vol==='__dir'?SAMPLE_DIR:SAMPLE,d.vol);
+});
+$('#chars').addEventListener('input',e=>{const id=e.target.dataset.vol;if(id)obj(id).vol=+e.target.value;});
+$('#chars').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.t)say(b.dataset.t==='__dir'?SAMPLE_DIR:SAMPLE,b.dataset.t);
+  else if(b.dataset.c){const id=b.dataset.c;
+    if(id==='__dir')dirv.col=(dirv.col+2)%(PAL.length+1)-1;else chars[id].col=(chars[id].col+1)%PAL.length;
+    renderChars();if(cues.length&&!$('#s3').hidden)render();}
+  else if(b.dataset.e)openLines(b.dataset.e);
+  else if(b.dataset.del){
+    const k=b.dataset.del;
+    if(b.dataset.arm){gone.add(k);Object.keys(chars).forEach(o=>{if(chars[o].map===k)chars[o].map='keep';});if(me===k)me=null;rebuild();renderChars();refreshScene();save();}
+    else{const t0=b.title;b.dataset.arm='1';b.classList.add('arm');b.textContent='Supprimer ?';b.title='Confirmer la suppression';setTimeout(()=>{if(b.isConnected){delete b.dataset.arm;b.classList.remove('arm');b.innerHTML=BIN;b.title=t0;}},3000);}
+  }
+});
+$('#gonebar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!b.dataset.rest)return;gone.delete(b.dataset.rest);rebuild();renderChars();refreshScene();save();});
+
+/* ---------- Fenêtre « répliques d’un personnage » ---------- */
+let linesFor=null,linesDirty=false;
+function ownIdx(id){const a=[];raw.forEach((c,i)=>{if(id==='__dir'?(c.dir||(chars[c.k]&&chars[c.k].map==='__dir'&&!gone.has(c.k))):(!c.dir&&c.k===id))a.push(i);});return a;}
+function ed(i){return edits[i]||(edits[i]={h:raw[i].text.slice(0,30)});}
+function cleanEd(i){const e=edits[i];if(e&&e.t==null&&!e.off&&!e.del)delete edits[i];}
+function touch(){linesDirty=true;rebuild();save();}
+function openLines(id){linesFor=id;linesDirty=false;renderLines();const d=$('#lines');if(d.showModal)d.showModal();else d.setAttribute('open','');}
+function renderLines(){
+  const id=linesFor,all=ownIdx(id),vis=all.filter(i=>!(edits[i]&&edits[i].del)),nDel=all.length-vis.length,dir=id==='__dir';
+  $('#linestitle').textContent=(dir?'Didascalies':chars[id].name)+' ('+vis.length+(dir?' didasc.)':' répl.)');
+  const ol=$('#linesl');ol.innerHTML='';
+  vis.forEach((i,n)=>{
+    const e=edits[i]||{},li=el('li',{className:(e.off?'offl ':'')+(e.t!=null?'edl':'')});li.dataset.i=i;
+    const on=el('input',{type:'checkbox',checked:!e.off});on.dataset.act=i;
+    const back=el('button',{title:'Revenir au texte d’origine',hidden:e.t==null},'Rétablir');back.dataset.back=i;
+    const del=el('button',{},'Supprimer');del.dataset.rm=i;
+    li.append(el('div',{className:'lh'},el('span',{className:'lid'},rid(i)),el('span',{className:'lrk'},(dir?'Didascalie ':'Réplique ')+(n+1)+' / '+vis.length),el('label',{},on,'Active'),back,del));
+    const ta=el('textarea',{value:rtext(i),rows:Math.min(8,Math.max(2,Math.ceil(rtext(i).length/70))),ariaLabel:'Texte du bloc '+rid(i)});ta.dataset.i=i;
+    li.append(ta);ol.append(li);
+  });
+  const ft=$('#linesfoot');ft.innerHTML='';
+  if(nDel){const r=el('button',{},'Restaurer les blocs supprimés ('+nDel+')');r.dataset.restore='1';ft.append(r);}
+}
+$('#linesl').addEventListener('input',e=>{
+  const t=e.target;if(t.tagName!=='TEXTAREA')return;const i=+t.dataset.i,li=t.closest('li');
+  if(t.value===raw[i].text){if(edits[i])delete edits[i].t;cleanEd(i);}else ed(i).t=t.value;
+  const mod=edits[i]&&edits[i].t!=null;li.classList.toggle('edl',!!mod);li.querySelector('[data-back]').hidden=!mod;touch();
+});
+$('#linesl').addEventListener('change',e=>{
+  const t=e.target;if(t.dataset.act==null)return;const i=+t.dataset.act;
+  if(t.checked){if(edits[i])delete edits[i].off;cleanEd(i);}else ed(i).off=1;
+  t.closest('li').classList.toggle('offl',!t.checked);touch();renderChars();
+});
+$('#linesl').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.back!=null){const i=+b.dataset.back;if(edits[i])delete edits[i].t;cleanEd(i);touch();renderLines();renderChars();}
+  else if(b.dataset.rm!=null){
+    const i=+b.dataset.rm;
+    if(b.dataset.arm){ed(i).del=1;touch();renderLines();renderChars();}
+    else{b.dataset.arm='1';b.classList.add('arm');b.textContent='Confirmer ?';setTimeout(()=>{if(b.isConnected){delete b.dataset.arm;b.classList.remove('arm');b.textContent='Supprimer';}},3000);}
+  }
+});
+$('#linesfoot').addEventListener('click',e=>{
+  if(!e.target.dataset.restore)return;
+  ownIdx(linesFor).forEach(i=>{if(edits[i]){delete edits[i].del;cleanEd(i);}});touch();renderLines();renderChars();
+});
+$('#linesclose').onclick=()=>$('#lines').close();
+$('#lines').addEventListener('click',e=>{if(e.target===$('#lines'))$('#lines').close();});
+$('#lines').addEventListener('close',()=>{if(linesDirty){linesDirty=false;renderChars();refreshScene();}});
+
+/* ---------- Lecture ---------- */
+function speakText(text,ch,alive){
+  return engine.speak(text,voices[ch.v],{rate:+$('#rate').value,pitch:ch.pitch,volume:ch.vol==null?1:ch.vol},alive);
+}
+/* Écoute ponctuelle (voix de test, réplique perso, extrait) : n’avance jamais la scène */
+function say(text,k){
+  listenPause();
+  if(playing&&cues[idx]&&cues[idx].k!==me){playing=false;tok++;if(!$('#s3').hidden)render();}
+  const lt=++ltok;engine.stop();
+  speakText(text,k==='__dir'?dirv:chars[k],()=>lt===ltok).then(()=>{if(lt===ltok&&playing&&cues[idx]&&cues[idx].k===me)listenStart(cues[idx]);});
+}
+function step(){
+  if(!playing)return;
+  if(idx>=cues.length){playing=false;listenStop();render();return;}
+  render();
+  const c=cues[idx];
+  if(c.k===me){listenStart(c);return;}                  /* à toi : on attend */
+  const t=tok;
+  const done=()=>{if(t===tok&&playing){idx++;puffN=0;step();}};
+  if(c.dir){if(dirv.on)speakText(c.text,dirv,()=>t===tok).then(done);else setTimeout(done,Math.min(3500,500+c.text.length*40)/(+$('#rate').value));return;}
+  speakText(c.text,chars[c.k],()=>t===tok).then(done);
+}
+function go(n){
+  listenPause();$('#heard').textContent='';tok++;ltok++;engine.stop();puffN=0;hintFor=-1;
+  idx=Math.max(0,Math.min(cues.length,n));
+  playing?step():render();
+}
+
+/* ---------- Affichage ---------- */
+function myLine(){let j=idx;while(j<cues.length&&cues[j].k!==me)j++;return j;}
+function render(){
+  const stage=$('#stage');stage.innerHTML='';hwBox=null;
+  const all=settings.shown>=21,N=settings.shown;
+  const from=all?0:Math.max(0,idx-(N-1)),to=settings.ahead?(all?cues.length-1:Math.min(cues.length-1,idx+N-1)):Math.min(idx,cues.length-1);
+  stage.classList.toggle('jump',!!settings.clickJump);
+  for(let k=from;k<=to;k++){
+    const q=cues[k],cur=k===idx,fut=k>idx,mine=q.k===me;
+    const d=el('div',{className:'cue'+(cur?' cur':'')+(fut?' fut':'')+(mine?' me':'')+(q.dir?' dir':''),title:settings.clickJump?'Reprendre la lecture à partir d’ici':''},el('b',{},q.name,el('i',{className:'rid'},rid(q.ri))),el('span',{},(mine&&(fut||(cur&&!puffN)))?'… (à toi de jouer)':(mine&&cur?puffText(q.text):q.text)));d.dataset.k=k;if(settings.clickJump){d.tabIndex=0;d.setAttribute('role','button');}d.style.setProperty('--c',colOf(q.k));if(mine&&cur){hwBox=el('div',{className:'hw'});d.append(hwBox);}stage.append(d);
+  }
+  /* position de la réplique en cours dans la zone : haut / centre / bas (défaut) */
+  const curEl=stage.querySelector('.cue.cur'),place=settings.place;
+  if(curEl){
+    const H=stage.clientHeight,h=curEl.offsetHeight,sp=n=>el('div',{className:'sp',style:'height:'+Math.max(0,Math.round(n))+'px'});
+    if(place==='center'){stage.prepend(sp((H-h)/2));stage.append(sp((H-h)/2));}
+    else if(place==='top')stage.append(sp(H-h-8));
+    const cr=curEl.getBoundingClientRect(),sr=stage.getBoundingClientRect(),rel=cr.top-sr.top+stage.scrollTop;
+    stage.scrollTop=(h>H-12||place==='top')?rel-6:place==='center'?rel-(H-h)/2:rel+h-H+6;
+  }else stage.scrollTop=stage.scrollHeight;
+  const done=idx>=cues.length;
+  $('#status').textContent=done?'Scène terminée. Bravo !'+avgTxt():(cues[idx].k===me?'À toi !':(playing?(cues[idx].dir?'Didascalie…':cues[idx].name+' parle…'):'En pause'));
+  $('#pos').max=cues.length;$('#pos').value=idx;
+  $('#play').textContent=playing?'Pause':(done?'Rejouer':'Lecture');$('#play').classList.toggle('idle',!playing);
+  const j=myLine(),pt=$('#ptxt');if(me)$('#prompter').style.setProperty('--c',colOf(me));
+  pt.innerHTML='';pt.className=hidden?'off':'';
+  if(hidden)pt.textContent='Réplique masquée : essaie de t’en souvenir.';
+  else if(j<cues.length){let wi=0;cues[j].text.split(/(?<=[.,;:!?…»])\s+/).forEach(s=>{const g=el('span',{className:'seg',tabIndex:0,role:'button',title:'Écouter ce passage'});wi=wrapWords(g,s,wi);pt.append(g,' ');});}
+  else pt.textContent='Tu n’as plus de réplique dans cette scène.';
+  $('#hear').disabled=$('#hint').disabled=j>=cues.length;
+  $('#hear').hidden=$('#hint').hidden=!hidden;   /* aides visibles seulement quand la réplique est masquée */
+  $('#peek').hidden=!hidden||!(cues[idx]&&cues[idx].k===me&&puffN<cues[idx].text.split(/\s+/).filter(Boolean).length);puffNew=false;if(listening&&lastAtt)paintAll(lastAtt);save();
+}
+
+/* ---------- Clic sur une réplique : reprendre la lecture à partir d’elle (désactivable dans Paramètres › Général) ---------- */
+function jumpTo(k){if(k<0||k>=cues.length)return;playing=true;go(k);}
+$('#stage').addEventListener('click',e=>{
+  if(!settings.clickJump)return;const c=e.target.closest('.cue');if(!c||!c.dataset.k)return;
+  if(String(getSelection()).trim())return;                    /* sélection de texte en cours : on ne relance pas */
+  jumpTo(+c.dataset.k);
+});
+$('#stage').addEventListener('keydown',e=>{
+  if(!settings.clickJump||(e.key!=='Enter'&&e.key!==' '))return;const c=e.target.closest&&e.target.closest('.cue');
+  if(!c||e.target!==c||!c.dataset.k)return;e.preventDefault();jumpTo(+c.dataset.k);
+});
+
+/* ---------- Contrôles ---------- */
+const GEAR=$('#gear').innerHTML;$('#gear2').innerHTML=GEAR;
+function setPb(){const pr=$('#prompter');document.documentElement.style.setProperty('--pb',(pr.hidden?0:pr.offsetHeight)+8+'px');}
+if(window.ResizeObserver)new ResizeObserver(setPb).observe($('#prompter'));window.addEventListener('resize',setPb);
+let reh=false;
+/* Écran allumé pendant la répétition (si le navigateur le permet) */
+let wl=null;
+async function wakeOn(){try{if('wakeLock' in navigator&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null;});}}catch(e){wl=null;}}
+function wakeOff(){try{if(wl){wl.release();wl=null;}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&reh)wakeOn();});
+function enterReh(){wakeOn();reh=true;document.body.classList.add('reh');$('#more').open=false;$('#rtitle').textContent=script?script.title:'';try{history.pushState({v:'reh'},'');}catch(e){}setPb();window.scrollTo(0,0);}
+function exitReh(fromPop){
+  if(!reh)return;reh=false;wakeOff();listenStop();playing=false;tok++;ltok++;engine.stop();
+  document.body.classList.remove('reh');$('#more').open=true;$('#s3').hidden=true;$('#prompter').hidden=true;setPb();
+  if(script){clearTimeout(saveT);try{save();}catch(e){}}
+  resumeAt=(idx>0&&idx<cues.length)?idx:0;$('#resume').hidden=!resumeAt;$('#resume').textContent='Reprendre à la réplique '+(resumeAt+1)+' / '+cues.length;
+  renderChars();window.scrollTo(0,0);
+  if(!fromPop){try{if(history.state&&history.state.v==='reh')history.back();}catch(e){}}
+}
+$('#rexit').onclick=()=>exitReh(false);
+$('#gear2').onclick=()=>$('#gear').click();
+$('#start').onclick=()=>{
+  $('#s3').hidden=false;$('#prompter').hidden=false;enterReh();
+  listenStop();scores=[];playing=true;idx=startFrom;startFrom=0;tok++;ltok++;puffN=0;hintFor=-1;engine.stop();
+  step();
+};
+$('#play').onclick=()=>{
+  if(idx>=cues.length)idx=0;
+  listenStop();playing=!playing;tok++;ltok++;engine.stop();
+  playing?step():render();
+};
+$('#next').onclick=()=>go(idx+1);
+$('#prev').onclick=()=>go(idx-1);
+$('#restart').onclick=()=>{scores=[];playing=true;go(0);};
+$('#pos').oninput=e=>go(+e.target.value);
+$('#peek').onclick=()=>{const c=cues[idx];if(!c||c.k!==me)return;const n=c.text.split(/\s+/).filter(Boolean).length;if(puffN>=n)return;puffN++;puffNew=true;render();};
+/* « Indice » : les mots de ta réplique apparaissent un à un, en fondu doux (un mot de plus à chaque appui) */
+function puffText(text){
+  const w=text.split(/\s+/).filter(Boolean),f=document.createDocumentFragment();
+  w.slice(0,puffN).forEach((x,i)=>{const sp=el('span',{className:'pf'+(puffNew&&i===puffN-1?' pfnew':'')},x);f.append(sp,i<puffN-1?' ':'');});
+  if(puffN<w.length)f.append(' …');return f;
+}
+$('#hide').onclick=()=>{hidden=!hidden;$('#hide').textContent=hidden?'Afficher':'Masquer';$('#hide').setAttribute('aria-pressed',hidden);render();};
+/* écouter sa propre réplique, entière ou en partie, sans passer son tour */
+$('#hear').addEventListener('mousedown',e=>e.preventDefault());
+$('#hear').onclick=()=>{
+  const j=myLine();if(j>=cues.length)return;
+  const s=getSelection(),sel=String(s).trim();
+  say(sel&&s.anchorNode&&$('#prompter').contains(s.anchorNode)?sel:cues[j].text,me);
+};
+$('#hint').onclick=()=>{
+  const j=myLine();if(j>=cues.length)return;
+  if(hintFor!==j){hintFor=j;hintN=0;}
+  const w=cues[j].text.split(/\s+/);hintN=Math.min(w.length,hintN+3);
+  say(w.slice(0,hintN).join(' '),me);
+};
+$('#ptxt').addEventListener('click',e=>{const g=e.target.closest('.seg');if(g)say(g.textContent,me);});
+$('#ptxt').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList.contains('seg'))say(e.target.textContent,me);});
+/* panneau du bas redimensionnable */
+function setPh(px){px=Math.max(50,Math.min(Math.round(innerHeight*.6),px));$('#prompter').style.setProperty('--ph',px+'px');try{localStorage.setItem('ph',px);}catch(e){}}
+try{const v=+localStorage.getItem('ph');if(v)setPh(v);}catch(e){}
+const grip=$('#grip');let drag=null;
+grip.addEventListener('pointerdown',e=>{drag={y:e.clientY,h:$('#ptxt').offsetHeight};grip.setPointerCapture(e.pointerId);e.preventDefault();});
+grip.addEventListener('pointermove',e=>{if(drag)setPh(drag.h+(drag.y-e.clientY));});
+grip.addEventListener('pointerup',()=>{drag=null;});
+grip.addEventListener('pointercancel',()=>{drag=null;});
+grip.addEventListener('dblclick',()=>{$('#prompter').style.removeProperty('--ph');try{localStorage.removeItem('ph');}catch(e){}});
+grip.addEventListener('keydown',e=>{const h=$('#ptxt').offsetHeight;if(e.key==='ArrowUp'){setPh(h+24);e.preventDefault();}else if(e.key==='ArrowDown'){setPh(h-24);e.preventDefault();}});
+function setRate(v){v=Math.min(1.3,Math.max(.5,+v||1));$('#rate').value=v;$('#rate2').value=v;$('#rv').textContent=fmt(v);$('#rv2').textContent=fmt(v);save();}
+$('#rate').oninput=e=>setRate(e.target.value);
+$('#rate2').oninput=e=>setRate(e.target.value);
+setRate(1);
+document.addEventListener('keydown',e=>{
+  if($('#s3').hidden||$('#settings').open||$('#lines').open||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||e.target.classList.contains('seg'))return;
+  if(e.key==='ArrowRight'){e.preventDefault();go(idx+1);}
+  if(e.key==='ArrowLeft'){e.preventDefault();go(idx-1);}
+});
+/* Hors ligne / installation : service worker (seulement en http(s), pas dans l’aperçu ni en fichier local) */
+try{if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)&&window.top===window)navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
+</script>
+</body>
+</html>
