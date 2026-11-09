@@ -13,7 +13,7 @@
 <title>Répète – ton partenaire de réplique</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--danger:#b3261e;--bg:#eceef3;--panel:#fbfbfd;--ink:#191830;--mute:#63617a;--line:#d3d5e0;--acc:#a8204f;--accink:#fff;--hi:#f6dfe7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--sig:var(--acc);--sigink:var(--accink);--danger:var(--sig);--bg:#eceef3;--panel:#fbfbfd;--ink:#191830;--mute:#63617a;--line:#d3d5e0;--acc:#a8204f;--accink:#fff;--hi:#f6dfe7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14111c;--panel:#1d1929;--ink:#ece9f4;--mute:#9b97b3;--line:#342f46;--acc:#e8628a;--accink:#1a0a12;--hi:#3a1d2c;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#14111c;--panel:#1d1929;--ink:#ece9f4;--mute:#9b97b3;--line:#342f46;--acc:#e8628a;--accink:#1a0a12;--hi:#3a1d2c;color-scheme:dark}
 *,*::before,*::after{box-sizing:inherit}
@@ -30,7 +30,7 @@ button,.btn{font-size:.95rem;font-weight:600;background:var(--panel);color:var(-
 label.btn{line-height:normal;display:inline-flex;align-items:center}
 button.main,.btn.main{background:var(--acc);color:var(--accink);border-color:var(--acc)}
 button:disabled{opacity:.45;cursor:not-allowed}
-#gorow{flex-wrap:nowrap}#gorow button{flex:1 1 0;min-width:0}#gorow #resume{background:#86e3dd;border-color:#5fc9c2;color:#12302e}#gorow #start{background:#e5484d;border-color:#c93a3f;color:#fff}#savemsg{text-align:center}
+#gorow{flex-wrap:nowrap}#gorow button{flex:1 1 0;min-width:0}#gorow #resume{background:#86e3dd;border-color:#5fc9c2;color:#12302e}#gorow #start{background:var(--sig);border-color:var(--sig);color:var(--sigink)}#savemsg{text-align:center}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.btn:focus-within,.seg:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:.6em 0}
 textarea{width:100%;font:inherit;font-size:.95rem;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
@@ -101,7 +101,7 @@ input[type=range]{accent-color:var(--acc)}
 #chars .listen{width:calc(var(--listen-w)*2/3);height:calc(var(--rowbtn-h)*2/3)}
 #chars .ic svg,#chars .listen svg{width:16px;height:16px}
 #chars .listen svg{width:13px;height:13px}
-#chars .ic.arm{width:auto;background:var(--danger);border-color:var(--danger);color:#fff;line-height:1.2;padding:0 10px;font-size:.8rem}
+#chars .ic.arm{width:auto;background:var(--danger);border-color:var(--danger);color:var(--sigink);line-height:1.2;padding:0 10px;font-size:.8rem}
 #gonein{padding:2px 0 4px}
 #gonebar button{padding:3px 10px;margin:0 4px 0 2px;font-size:.8rem}
 .cue.fut{opacity:.72}
@@ -142,7 +142,7 @@ input[type=range]{accent-color:var(--acc)}
 #linesl .lid{font:700 .85rem var(--fh);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:1px 10px}
 #linesl .lrk{color:var(--mute);font-size:.85rem;flex:1}
 #linesl .lh button{padding:3px 10px;font-size:.8rem}
-#linesl .lh button[data-rm]{background:var(--danger);border-color:var(--danger);color:#fff}   /* même rouge que les autres boutons de suppression */
+#linesl .lh button[data-rm]{background:var(--danger);border-color:var(--danger);color:var(--sigink)}   /* même rouge que les autres boutons de suppression */
 #linesl .lh button[data-rm].arm{box-shadow:0 0 0 3px color-mix(in srgb,var(--danger) 35%,transparent)}
 #linesl .lh label{font-size:.85rem;display:flex;gap:5px;align-items:center}
 #linesl textarea{min-height:3.2em}
@@ -177,7 +177,7 @@ input[type=text]{font:inherit;font-size:.95rem;background:var(--bg);color:var(--
 #libl button:not(.del){flex:1 1 0}
 #libl .nm small{display:block;color:var(--mute);font-weight:400;font-size:.8rem}
 #libl button{box-sizing:border-box}
-#libl button.del.armed{background:#e5484d;border-color:#c93a3f;color:#fff}
+#libl button.del.armed{background:var(--sig);border-color:var(--sig);color:var(--sigink)}
 #libl button.del{flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;padding:6px 0}
 #libl button.del svg{width:1.3rem;height:1.3rem;margin-left:.45rem}
 #libl button{flex:1 1 0;min-width:0;padding:6px 0;font-size:1.07rem;white-space:nowrap;text-align:center}
@@ -241,7 +241,7 @@ body.reh #s3>#rbar,body.reh #s3>#rline{max-width:none}
 @keyframes pfin{from{opacity:0;filter:blur(9px);transform:translateY(2px)}to{opacity:1;filter:blur(0);transform:none}}
 @media (prefers-reduced-motion:no-preference){.pfnew{animation:pfin 1.1s cubic-bezier(.2,.7,.2,1) both}}
 #prompter #hear,#prompter #hint,#prompter #peek{background:#ffd9a3;border-color:#f0c07a;color:#2a1a00}
-#prompter button.speaking{background:#e5484d!important;border-color:#c93a3f!important;color:#fff!important}
+#prompter button.speaking{background:var(--sig)!important;border-color:var(--sig)!important;color:var(--sigink)!important}
 #prompter button svg{width:1em;height:1em;vertical-align:-.12em;margin-right:.35em}
 #prompter #hide{background:#fff;border-color:#d3d5e0;color:#1b1830}
 #s2 .lead{font-size:.95rem}
@@ -533,7 +533,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché sur 4 chiffres : v0.2.1.0132 */
-const VERSION='0.2.1',BUILD=132;
+const VERSION='0.2.1',BUILD=134;
 const VFULL=VERSION+'.'+String(BUILD).padStart(4,'0');$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+String(BUILD).padStart(4,'0');document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
