@@ -56,6 +56,7 @@ input[type=range]{accent-color:var(--acc)}
 #prompter .in{max-width:720px;margin:0 auto}
 #prompter .hd{display:flex;justify-content:flex-start;column-gap:16px;align-items:center;flex-wrap:wrap;gap:8px;font:600 .9rem var(--fh);color:var(--mute)}
 #prompter .hd>span:last-child{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start}
+#prompter .hd>span:first-child{font-size:1.2rem}
 #prompter .hd button{padding:5px 10px}
 #prompter #hide{min-width:6.6em}
 #prompter .hd button[hidden]{display:inline-block!important;visibility:hidden}
@@ -95,9 +96,9 @@ input[type=range]{accent-color:var(--acc)}
 #chars{--rowbtn-h:34px;--listen-w:78px;--iconbtn-w:51px}
 #chars .ic,#chars .listen{height:var(--rowbtn-h);box-sizing:border-box;padding:0;line-height:0;border-radius:8px;flex:none;display:inline-flex;align-items:center;justify-content:center}
 #chars .ic{width:var(--iconbtn-w)}
-#chars .listen{width:var(--listen-w)}
+#chars .listen{width:calc(var(--listen-w)*2/3);height:calc(var(--rowbtn-h)*2/3)}
 #chars .ic svg,#chars .listen svg{width:16px;height:16px}
-#chars .listen svg{width:18px;height:18px}
+#chars .listen svg{width:13px;height:13px}
 #chars .ic.arm{width:auto;background:var(--danger);border-color:var(--danger);color:#fff;line-height:1.2;padding:0 10px;font-size:.8rem}
 #gonein{padding:2px 0 4px}
 #gonebar button{padding:3px 10px;margin:0 4px 0 2px;font-size:.8rem}
@@ -231,6 +232,11 @@ body.reh #s3>#rbar,body.reh #s3>#rline{max-width:none}
 #prompter #hide{background:#fff;border-color:#d3d5e0;color:#1b1830}
 #s2 .lead{font-size:.95rem}
 .sline h2{font-family:var(--fb);font-weight:600}
+#s2a{margin-bottom:8px}
+#s2a .sline{position:relative}
+#s2a h2{text-align:center;padding:0 44px}
+#s2a .iconb{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+#s2a input{margin-right:44px}
 .bkrow{margin:10px 0 4px;flex-wrap:nowrap}
 .bkrow button{flex:1 1 0;min-width:0}
 .topbar{justify-content:space-between}
@@ -248,8 +254,8 @@ body.reh #s3{position:fixed;inset:0;z-index:20;margin:0;border:0;border-radius:0
 body.reh #rbar{display:flex;align-items:center;gap:10px;padding:0 0 4px}
 body.reh #rbar #rtitle{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);font:600 1.2rem var(--fh);text-align:center}
 body.reh #rbar button{padding:6px 12px}
-button.sq{padding:0;width:44px;height:44px;font-size:1.5rem;line-height:1;display:inline-flex;align-items:center;justify-content:center}
-@media (max-width:480px){body.reh #s3>.row:not(.asr){gap:6px;flex-wrap:nowrap}body.reh #s3>.row>button{padding:9px 8px;font-size:.9rem;white-space:nowrap}body.reh #s3>.row>button.sq{width:40px;height:40px;padding:0;font-size:1.4rem}}
+button.sq{padding:0;height:auto;align-self:stretch;width:2.5rem;font-size:1.4rem;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+@media (max-width:480px){body.reh #s3>.row:not(.asr){gap:6px;flex-wrap:nowrap}body.reh #s3>.row>button{padding:9px 8px;font-size:.9rem;white-space:nowrap}body.reh #s3>.row>button.sq{padding:0;font-size:1.3rem}}
 body.reh #gear2 svg{width:20px;height:20px;display:block}
 body.reh #stage{flex:1 1 auto;height:auto;min-height:80px}
 body.reh #s3>.row{flex:none;margin-top:8px}
@@ -323,11 +329,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
     <details id="charsub" class="sub" open><summary>Personnages <span id="charn"></span></summary><ul id="chars"></ul></details>
     <details id="gonebar" class="sub" open hidden><summary>Supprimés <span id="gonen"></span></summary><div id="gonein" class="tip"></div></details>
     <p id="vhint"></p>
-    <div class="row">
-      <label class="k">Vitesse de lecture
-        <input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="1"><output id="rv">1,00×</output>
-      </label>
-    </div>
+    <div hidden><input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="1"><output id="rv">1,00×</output></div>
     <div class="row"><button id="start" class="main" disabled>Lancer la répétition</button> <button id="resume" hidden></button></div>
     <p id="savemsg" class="tip" role="status"></p>
   </section>
@@ -486,7 +488,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché à la suite : v0.1.4.62 */
-const VERSION='0.2.0',BUILD=89;
+const VERSION='0.2.0',BUILD=92;
 const VFULL=VERSION+'.'+BUILD;$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+BUILD;document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
@@ -1306,7 +1308,7 @@ function renderChars(){
     if(!isDir)lab.htmlFor=rid;
     const st=el('select',{className:'st',ariaLabel:isDir?'Lecture des didascalies':'Statut de '+name});
     if(isDir){st.dataset.d='1';st.add(new Option('Silencieuses','off',false,!dirv.on&&!dirv.ign));st.add(new Option('Lues à voix haute','on',false,dirv.on));st.add(new Option('Ignorées','ign',false,dirv.ign));}
-    else{st.dataset.m=id;st.add(new Option('Personnage','keep',false,o.map==='keep'));st.add(new Option('Ignorer','ignore',false,o.map==='ignore'));
+    else{st.dataset.m=id;st.add(new Option('Ignorer','ignore',false,o.map==='ignore'));st.add(new Option('Personnage','keep',false,o.map==='keep'));
       keeps.filter(x=>x!==id).forEach(x=>st.add(new Option('Fusionner avec '+chars[x].name,x,false,o.map===x)));
       if(!gone.has('__dir'))st.add(new Option('Fusionner avec les didascalies','__dir',false,o.map==='__dir'));}
     const vs=el('select',{className:'vs',ariaLabel:'Voix : '+name,disabled:!on||!voices.length});vs.dataset.v=id;
@@ -1512,7 +1514,7 @@ $('#play').onclick=()=>{
 };
 $('#next').onclick=()=>go(idx+1);
 $('#prev').onclick=()=>go(idx-1);
-$('#restart').onclick=()=>{scores=[];playing=true;go(0);};
+$('#restart').onclick=()=>{scores=[];playing=false;go(0);};
 $('#pos').oninput=e=>go(+e.target.value);
 $('#peek').onclick=()=>{const c=cues[idx];if(!c||c.k!==me)return;const n=c.text.split(/\s+/).filter(Boolean).length;if(puffN>=n)return;puffN++;puffNew=true;render();};
 /* « Indice » : les mots de ta réplique apparaissent un à un, en fondu doux (un mot de plus à chaque appui) */
