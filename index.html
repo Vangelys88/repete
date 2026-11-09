@@ -27,6 +27,7 @@ h2{font-size:1.15rem;font-weight:600;margin:0 0 .6em}
 .tip{color:var(--mute);font-size:.85rem;margin:.4em 0 0}
 section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px}
 button,.btn{font-size:.95rem;font-weight:600;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 14px;cursor:pointer;display:inline-block}
+label.btn{line-height:normal;display:inline-flex;align-items:center}
 button.main,.btn.main{background:var(--acc);color:var(--accink);border-color:var(--acc)}
 button:disabled{opacity:.45;cursor:not-allowed}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.btn:focus-within,.seg:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
@@ -170,9 +171,9 @@ input[type=text]{font:inherit;font-size:.95rem;background:var(--bg);color:var(--
 #libl{list-style:none;margin:0;padding:0}
 #libl li{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
 #libl li:first-child{border-top:0}
-#libl .nm{flex:1 1 120px;min-width:0;font-weight:600}
+#libl .nm{flex:1 1 90px;font-weight:600}
 #libl .acts{display:flex;gap:10px;margin-left:auto;flex:none}
-#libl button:not(.del){flex:0 0 133px}
+#libl button:not(.del){flex:0 0 89px}
 #libl .nm small{display:block;color:var(--mute);font-weight:400;font-size:.8rem}
 #libl button{box-sizing:border-box}
 #libl button.del.armed{background:#e5484d;border-color:#c93a3f;color:#fff}
@@ -524,7 +525,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché à la suite : v0.1.4.62 */
-const VERSION='0.2.0',BUILD=117;
+const VERSION='0.2.0',BUILD=118;
 const VFULL=VERSION+'.'+BUILD;$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+BUILD;document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
