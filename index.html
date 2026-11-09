@@ -30,7 +30,8 @@ button,.btn{font-size:.95rem;font-weight:600;background:var(--panel);color:var(-
 label.btn{line-height:normal;display:inline-flex;align-items:center}
 button.main,.btn.main{background:var(--acc);color:var(--accink);border-color:var(--acc)}
 button:disabled{opacity:.45;cursor:not-allowed}
-#gorow{flex-wrap:nowrap;align-items:stretch}#gorow button{flex:1 1 0;min-width:0}#gorow #resume{background:#86e3dd;border-color:#5fc9c2;color:#12302e}#gorow #start{background:var(--sig);border-color:var(--sig);color:var(--sigink)}#savemsg{text-align:center}
+#improw{flex-wrap:nowrap;gap:5px;align-items:stretch}#improw>*{flex:1 1 auto;white-space:nowrap;text-align:center;justify-content:center;padding-left:5px;padding-right:5px;font-size:min(.95rem,calc((100vw - 94px)/24.8))}
+#gorow{flex-wrap:nowrap;align-items:stretch}#gorow button{flex:1 1 0;min-width:0}#gorow .rl{display:block;white-space:nowrap}#gorow button{padding-left:4px;padding-right:4px}#gorow #resume{font-size:min(.95rem,calc((50vw - 36px)/12.8));background:#86e3dd;border-color:#5fc9c2;color:#12302e}#gorow #start{background:var(--sig);border-color:var(--sig);color:var(--sigink)}#savemsg{text-align:center}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.btn:focus-within,.seg:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:.6em 0}
 textarea{width:100%;font:inherit;font-size:.95rem;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
@@ -310,10 +311,10 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
   <section id="s1">
     <h2>Importer un nouveau script</h2>
     <p class="lead">Aucune mise en forme à respecter : l’appli repère elle-même les personnages (noms en majuscules, « Nom : », « NOM. », nom centré au-dessus de la réplique…). Tu pourras corriger ensuite.</p>
-    <div class="row">
+    <div class="row" id="improw">
       <label class="btn main">Choisir un PDF<input type="file" id="pdf" accept="application/pdf" hidden></label>
-      <button id="paste">Coller du texte</button>
       <button id="demo">Essayer un exemple</button>
+      <button id="paste">Coller du texte</button>
     </div>
     <textarea id="txt" rows="8" hidden placeholder="Colle ici le texte de ta scène"></textarea>
     <div class="row"><button id="parse" class="main" hidden>Analyser le texte</button></div>
@@ -533,7 +534,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché sur 4 chiffres : v0.2.1.0132 */
-const VERSION='0.2.1',BUILD=135;
+const VERSION='0.2.1',BUILD=137;
 const VFULL=VERSION+'.'+String(BUILD).padStart(4,'0');$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+String(BUILD).padStart(4,'0');document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
@@ -1273,7 +1274,7 @@ function analyse(text,saved){
   $('#s3').hidden=true;$('#prompter').hidden=true;showScript(true);
   rebuild();
   resumeAt=(saved&&saved.idx>0&&saved.idx<cues.length)?saved.idx:0;idx=resumeAt;
-  $('#resume').hidden=!resumeAt;$('#resume').textContent='Reprendre à la réplique '+(resumeAt+1)+' / '+cues.length;
+  $('#resume').hidden=!resumeAt;setResume();
   $('#stitle').value=script?script.title:'';$('#stitle').hidden=true;$('#sname').parentElement.hidden=false;showTitle();
   renderChars();save();
 }
@@ -1561,6 +1562,7 @@ $('#stage').addEventListener('keydown',e=>{
 
 /* ---------- Contrôles ---------- */
 const GEAR=$('#gear').innerHTML;$('#gear2').innerHTML=GEAR;
+function setResume(){const r=$('#resume');r.textContent='';const t=document.createElement('span');t.textContent='Reprendre à la réplique';const n=document.createElement('span');n.textContent=(resumeAt+1)+' / '+cues.length;t.className=n.className='rl';r.append(t,n);}
 function fitRow(){const rw=$('#s3>.row');if(!rw||!reh)return;const n=$('#next'),r=$('#restart'),p=$('#play');if(!n||!r||!p||!n.offsetWidth)return;const need=2*(n.offsetWidth+r.offsetWidth+6)+p.offsetWidth+12+28;const f=need>rw.clientWidth;if(rw.classList.contains('flex')!==f)rw.classList.toggle('flex',f);}
 function setPb(){fitRow();const pr=$('#prompter'),rw=$('#s3>.row'),rt=document.documentElement.style;rt.setProperty('--pb',(pr.hidden?0:Math.ceil(pr.getBoundingClientRect().height))+8+'px');rt.setProperty('--rh',(rw&&reh?Math.ceil(rw.getBoundingClientRect().height):0)+'px');if(reh)placeCur();}
 if(window.ResizeObserver){const ro=new ResizeObserver(setPb);ro.observe($('#prompter'));ro.observe($('#s3>.row'));}window.addEventListener('resize',setPb);
@@ -1600,7 +1602,7 @@ function exitReh(fromPop){
   if(!reh)return;reh=false;wakeOff();listenStop();playing=false;tok++;ltok++;engine.stop();
   document.body.classList.remove('reh');$('#more').open=true;$('#s3').hidden=true;$('#prompter').hidden=true;setPb();
   if(script){clearTimeout(saveT);try{save();}catch(e){}}
-  resumeAt=(idx>0&&idx<cues.length)?idx:0;$('#resume').hidden=!resumeAt;$('#resume').textContent='Reprendre à la réplique '+(resumeAt+1)+' / '+cues.length;
+  resumeAt=(idx>0&&idx<cues.length)?idx:0;$('#resume').hidden=!resumeAt;setResume();
   renderChars();window.scrollTo(0,0);
   if(!fromPop){try{if(history.state&&history.state.v==='reh')history.back();}catch(e){}}
 }
