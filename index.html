@@ -31,6 +31,7 @@ label.btn{line-height:normal;display:inline-flex;align-items:center}
 button.main,.btn.main{background:var(--acc);color:var(--accink);border-color:var(--acc)}
 button:disabled{opacity:.45;cursor:not-allowed}
 #improw{flex-wrap:nowrap;gap:5px;align-items:stretch}#improw>*{flex:1 1 auto;white-space:nowrap;text-align:center;justify-content:center;padding-left:5px;padding-right:5px;font-size:min(.95rem,calc((100vw - 94px)/24.8))}
+#pprep,#pvbox{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:.9rem}#pprep progress,#pvbox progress{width:100%;height:10px;margin-top:8px;display:block}#pprep button,#pvbox button{margin-top:8px;width:100%}#pprep[hidden],#pvbox[hidden],.pprep progress[hidden],.pprep button[hidden]{display:none}
 #gorow{flex-wrap:nowrap;align-items:stretch}#gorow button{flex:1 1 0;min-width:0}#gorow .rl{display:block;white-space:nowrap}#gorow button{padding-left:4px;padding-right:4px}#gorow #resume{font-size:min(.95rem,calc((50vw - 36px)/12.8));background:#86e3dd;border-color:#5fc9c2;color:#12302e}#gorow #start{background:var(--sig);border-color:var(--sig);color:var(--sigink)}#savemsg{text-align:center}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.btn:focus-within,.seg:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:.6em 0}
@@ -319,6 +320,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
     <textarea id="txt" rows="8" hidden placeholder="Colle ici le texte de ta scène"></textarea>
     <div class="row"><button id="parse" class="main" hidden>Analyser le texte</button></div>
     <p id="msg" role="status"></p>
+    <div id="pvbox" class="pprep" hidden><div id="pvmsg"></div><progress id="pvbar" value="0" max="1"></progress><button id="pvgo" type="button"></button></div>
   </section>
 
   <section id="lib">
@@ -354,6 +356,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
     <details id="charsub" class="sub" open><summary>Personnages <span id="charn"></span></summary><ul id="chars"></ul></details>
     <details id="gonebar" class="sub" open hidden><summary>Supprimés <span id="gonen"></span></summary><div id="gonein" class="tip"></div></details>
     <p id="vhint"></p>
+    <div id="pprep" class="pprep" hidden><div id="pmsg"></div><progress id="pbar" value="0" max="1"></progress><button id="pgo" type="button"></button></div>
     <div hidden><input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="1"><output id="rv">1,00×</output></div>
     <div class="row" id="gorow"><button id="resume" hidden></button> <button id="start" class="main" disabled>Lancer la répétition</button></div>
     <p id="savemsg" class="tip" role="status"></p>
@@ -448,6 +451,11 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
       </details>
     </div>
     <div role="tabpanel" id="pan-voc" aria-labelledby="tab-voc" class="pan" hidden>
+      <details class="sub" open><summary>Voix de synthèse</summary>
+        <div class="sl"><label class="k" style="justify-content:flex-start;display:flex"><input type="checkbox" id="k_piper"> Voix locales Piper (meilleure qualité, sans internet)</label>
+          <p class="tip">Ajoute 7 voix françaises à la liste des voix. Elles se téléchargent une seule fois (≈ 400 Mo), puis les répliques de ta scène sont préparées à l’avance pour être lues sans attente. Tant qu’une réplique n’est pas prête, la voix d’Android la remplace. La hauteur de voix n’est pas réglable avec Piper.</p>
+          <button id="piperflush" type="button">Supprimer les voix et répliques préparées</button><p id="piperst" class="tip"></p></div>
+      </details>
       <details class="sub" open><summary>Détection vocale</summary>
       <div class="sl"><label for="k_endSent">Détection fin de phrase <output id="o_endSent"></output></label>
         <input type="range" id="k_endSent" data-k="endSent" min="0.5" max="2" step="0.05">
@@ -534,7 +542,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché sur 4 chiffres : v0.2.1.0132 */
-const VERSION='0.2.1',BUILD=140;
+const VERSION='0.2.1',BUILD=142;
 const VFULL=VERSION+'.'+String(BUILD).padStart(4,'0');$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+String(BUILD).padStart(4,'0');document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
@@ -599,7 +607,154 @@ const WebSpeech={
   onChange(cb){if(this.ok)speechSynthesis.onvoiceschanged=cb;}
 };
 addEventListener('pointerdown',()=>WebSpeech.warm(),{once:true,capture:true});
-let engine=WebSpeech,script=null,saveT=null,resumeAt=0,startFrom=0;
+/* ---------- Voix Piper (locales, préparées à l’avance) ----------
+   Piper est trop lent pour parler en direct (≈ 1× la durée de l’audio sur téléphone) : on télécharge les voix une fois, puis on PRÉPARE l’audio de chaque réplique
+   (stocké sur l’appareil). Pendant la répétition on joue un fichier déjà prêt. Si une réplique n’est pas prête, la voix d’Android la remplace. */
+let piperOn=false;
+const PIPER_SRC=['https://cdn.jsdelivr.net/npm/@diffusionstudio/vits-web@1.0.3/+esm','https://esm.sh/@diffusionstudio/vits-web@1.0.3','https://cdn.jsdelivr.net/npm/@diffusionstudio/vits-web/+esm'];
+const PIPER_VOICES=[['fr_FR-siwis-medium','Siwis',96],['fr_FR-tom-medium','Tom',95],['fr_FR-upmc-medium','UPMC',94],['fr_FR-mls-medium','MLS',93],['fr_FR-siwis-low','Siwis léger',88],['fr_FR-gilles-low','Gilles léger',86],['fr_FR-mls_1840-low','MLS 1840 léger',85]];
+try{(JSON.parse(localStorage.getItem('repete:pvoices')||'[]')||[]).forEach(v=>{if(Array.isArray(v)&&typeof v[0]==='string'&&!PIPER_VOICES.some(x=>x[0]===v[0]))PIPER_VOICES.push([v[0],String(v[1]),+v[2]||85]);});}catch(e){}
+const pvName=k=>{const m=k.split('-');const n=(m[1]||k).replace(/_/g,' ');return n.charAt(0).toUpperCase()+n.slice(1);};
+const pvQ=k=>/x_low/.test(k)?80:/-low$/.test(k)?85:/-high$/.test(k)?97:92;
+const Piper={
+  lib:null,libP:null,db:null,mem:new Map(),
+  async loadLib(){
+    if(this.lib)return this.lib;
+    if(window.__piperLib)return this.lib=window.__piperLib;
+    if(!this.libP)this.libP=(async()=>{for(const u of PIPER_SRC){try{return this.lib=await import(u);}catch(e){}}throw new Error('moteur Piper introuvable (pas de réseau ?)');})();
+    try{return await this.libP;}catch(e){this.libP=null;throw e;}
+  },
+  idb(){if(this.db)return this.db;return this.db=new Promise((res,rej)=>{const r=indexedDB.open('repete-piper',1);r.onupgradeneeded=()=>r.result.createObjectStore('wav');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});},
+  async get(key){
+    if(this.mem.has(key))return this.mem.get(key);
+    try{const db=await this.idb();const b=await new Promise((res,rej)=>{const q=db.transaction('wav').objectStore('wav').get(key);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});if(b)this.mem.set(key,b);return b||null;}catch(e){return null;}
+  },
+  async put(key,blob){this.mem.set(key,blob);try{const db=await this.idb();await new Promise((res,rej)=>{const q=db.transaction('wav','readwrite').objectStore('wav').put(blob,key);q.onsuccess=()=>res();q.onerror=()=>rej(q.error);});}catch(e){}},
+  async clear(){this.mem.clear();try{const db=await this.idb();await new Promise(res=>{const q=db.transaction('wav','readwrite').objectStore('wav').clear();q.onsuccess=q.onerror=()=>res();});}catch(e){}
+    try{const t=await this.loadLib();await t.flush();}catch(e){}},
+  async downloadAll(onP){
+    const t=await this.loadLib();let st=[];try{st=(await t.stored()||[]).map(x=>typeof x==='string'?x:(x&&(x.key||x.id))||'');}catch(e){}
+    const todo=PIPER_VOICES.filter(v=>!st.includes(v[0]));let i=0;
+    for(const v of todo){i++;await t.download(v[0],p=>{if(onP)onP(v[1],i,todo.length,p);});}
+  },
+  async gen(text,key){const t=await this.loadLib();return t.predict({text,voiceId:key});}
+};
+let curAudio=null,curDone=null;
+function stopAudio(){if(curAudio){try{curAudio.pause();}catch(e){}}const d=curDone;curAudio=null;curDone=null;if(d)d();}
+function playBlob(b,o,alive){
+  return new Promise(res=>{
+    stopAudio();
+    const url=URL.createObjectURL(b),a=new Audio(url);curAudio=a;let fin=false,w=0;
+    const end=()=>{if(fin)return;fin=true;clearInterval(w);URL.revokeObjectURL(url);if(curAudio===a){curAudio=null;curDone=null;}res();};
+    curDone=end;
+    try{a.playbackRate=o.rate||1;a.preservesPitch=true;}catch(e){}
+    a.volume=Math.max(0,Math.min(1,o.volume==null?1:o.volume));
+    a.onended=end;a.onerror=end;
+    w=setInterval(()=>{if(!alive()){try{a.pause();}catch(e){}end();}},120);
+    a.play().catch(end);
+  });
+}
+const Engine={
+  and:[],
+  get ok(){return WebSpeech.ok;},
+  load(){
+    const a=this.and=WebSpeech.load();
+    if(!piperOn)return a;
+    const p=PIPER_VOICES.map(([key,nm,q])=>({id:'piper:'+key,name:nm,lang:'fr-FR',q,kind:'piper',key,label:'Piper · '+nm+' — locale, '+(q>=93?'naturelle':'légère')}));
+    return p.concat(a).sort((x,y)=>y.q-x.q);
+  },
+  async speak(text,voice,o,alive){
+    if(!voice||voice.kind!=='piper')return WebSpeech.speak(text,voice,o,alive);
+    const key=voice.key+'|'+text,b=await Piper.get(key);
+    if(!alive())return;
+    if(b)return playBlob(b,o,alive);
+    Prep.schedule();                               /* pas encore prête : la voix d’Android la remplace */
+    const a=this.and,fb=a.length?a[[...key].reduce((x,c)=>x+c.charCodeAt(0),0)%a.length]:null;
+    return WebSpeech.speak(text,fb,o,alive);
+  },
+  stop(){WebSpeech.stop();stopAudio();},
+  onChange(cb){WebSpeech.onChange(cb);}
+};
+/* Voix : au lancement, on vérifie s’il y a de nouvelles voix françaises et on télécharge celles qui manquent (barre sur l’accueil) */
+const Voices={
+  state:'idle',msg:'',val:0,max:1,p:null,
+  set(state,msg,val,max){this.state=state;this.msg=msg;this.val=val;this.max=max;this.draw();Prep.draw();},
+  draw(){
+    const box=$('#pvbox');if(!box)return;
+    box.hidden=!piperOn;if(!piperOn)return;
+    const need=!settings.piperGo;
+    $('#pvmsg').textContent=need?'Voix Piper : télécharge les voix françaises (≈ 400 Mo, Wi-Fi conseillé). Ensuite, à chaque lancement, l’appli vérifie s’il y en a de nouvelles.':(this.msg||'Voix Piper : en attente…');
+    const bar=$('#pvbar');bar.hidden=need||this.state!=='run';bar.max=this.max||1;bar.value=this.val||0;
+    const b=$('#pvgo');b.hidden=!(need||this.state==='err');b.textContent=need?'Télécharger les voix':'Réessayer';
+  },
+  run(){
+    if(this.p)return this.p;
+    this.p=(async()=>{
+      try{
+        this.set('run','Voix Piper : vérification des mises à jour…',0,1);
+        const lib=await Piper.loadLib();let added=0;
+        try{
+          const all=await lib.voices();const keys=Array.isArray(all)?all.map(v=>typeof v==='string'?v:v&&(v.key||v.id)||''):Object.keys(all||{});
+          keys.filter(k=>/^fr_FR-/.test(k)&&!PIPER_VOICES.some(x=>x[0]===k)).forEach(k=>{PIPER_VOICES.push([k,pvName(k)+(pvQ(k)<93?' léger':''),pvQ(k)]);added++;});
+          if(added){try{localStorage.setItem('repete:pvoices',JSON.stringify(PIPER_VOICES));}catch(e){}}
+        }catch(e){}
+        await Piper.downloadAll((nm,i,n,pr)=>this.set('run','Téléchargement des voix : '+i+' / '+n+' ('+nm+')'+(pr&&pr.total?' · '+Math.round(pr.loaded/1e6)+' / '+Math.round(pr.total/1e6)+' Mo':''),(i-1)+(pr&&pr.total?pr.loaded/pr.total:0),n));
+        this.set('ok','✓ Voix Piper à jour ('+PIPER_VOICES.length+' voix'+(added?', '+added+' nouvelle'+(added>1?'s':'')+' ajoutée'+(added>1?'s':''):'')+').',1,1);
+        if(added)loadVoices();
+      }catch(e){this.p=null;this.set('err','Voix Piper : '+(e&&e.message||e)+' — les voix déjà téléchargées restent utilisables pour les répliques déjà préparées.',0,1);throw e;}
+    })();
+    this.p.catch(()=>{});return this.p;
+  }
+};
+/* Préparation : téléchargement de toutes les voix, puis audio des répliques de la scène (les plus proches de la position courante d’abord) */
+const Prep={
+  tok:0,chain:Promise.resolve(),t:0,state:'idle',msg:'',val:0,max:1,
+  draw(){
+    const box=$('#pprep');if(!box)return;
+    const show=piperOn&&!!script&&Object.keys(chars).length>0;box.hidden=!show;if(!show)return;
+    const need=!settings.piperGo,vr=Voices.state==='run';
+    $('#pmsg').textContent=need?'Voix Piper : télécharge d’abord les voix (bouton ci-dessous). Les répliques de ta scène seront ensuite préparées à l’avance, pour être lues sans attente.':(vr?Voices.msg:this.msg);
+    const bar=$('#pbar');bar.hidden=need||(!vr&&(this.state==='ok'||this.state==='err'||this.state==='idle'));bar.max=(vr?Voices.max:this.max)||1;bar.value=(vr?Voices.val:this.val)||0;
+    const b=$('#pgo');b.hidden=!(need||(!vr&&this.state==='err'));b.textContent=need?'Télécharger les voix':'Réessayer';
+  },
+  set(state,msg,val,max){this.state=state;this.msg=msg;this.val=val;this.max=max;this.draw();},
+  refresh(){this.draw();if(piperOn&&settings.piperGo)this.schedule();},
+  schedule(){if(!piperOn||!settings.piperGo||!script)return;clearTimeout(this.t);this.t=setTimeout(()=>{const my=++this.tok;this.chain=this.chain.then(()=>this.inner(my)).catch(()=>{});},500);},
+  list(){
+    const out=[],seen=new Set();
+    const add=(t,ch)=>{const v=ch&&voices[ch.v];if(!v||v.kind!=='piper'||!t)return;const k=v.key+'|'+t;if(seen.has(k))return;seen.add(k);out.push([v.key,t,k]);};
+    Object.keys(chars).filter(k=>chars[k].map==='keep'&&!gone.has(k)).forEach(k=>add(SAMPLE,chars[k]));
+    if(dirv.on)add(SAMPLE_DIR,dirv);
+    const cur=cues[idx]?cues[idx].ri:0,all=[];
+    raw.forEach((c,i)=>{                         /* toutes les répliques non supprimées, même désactivées : activer/désactiver ne relance rien */
+      const e=edits[i];if(e&&e.del)return;const tx=rtext(i);if(!tx||!tx.trim())return;
+      let ch;
+      if(c.dir){if(!dirv.on||dirv.ign||gone.has('__dir'))return;ch=dirv;}
+      else{if(gone.has(c.k)||!chars[c.k])return;const m=chars[c.k].map,t=m==='keep'?c.k:m;
+        if(t==='ignore'||gone.has(t)||!chars[t]&&t!=='__dir')return;
+        if(t==='__dir'){if(!dirv.on||dirv.ign||gone.has('__dir'))return;ch=dirv;}else{if(t===me)return;ch=chars[t];}}
+      all.push([i,tx,ch]);});
+    all.filter(x=>x[0]>=cur).concat(all.filter(x=>x[0]<cur)).forEach(x=>add(x[1],x[2]));
+    return out;
+  },
+  async inner(my){
+    const stop=()=>my!==this.tok;
+    try{
+      this.set('run','Préparation des répliques : en attente des voix…',0,1);
+      await Voices.run();if(stop())return;
+      for(;;){
+        if(stop())return;
+        const L=this.list();let pend=null,done=0;
+        for(const it of L){if(await Piper.get(it[2]))done++;else if(!pend)pend=it;}
+        if(!pend){this.set('ok','✓ Voix prêtes ('+L.length+' répliques et échantillons préparés).',1,1);return;}
+        this.set('run','Préparation des répliques : '+done+' / '+L.length+' (tu peux déjà lancer la répétition : la voix d’Android remplace celles pas encore prêtes)',done,L.length);
+        const w=await Piper.gen(pend[1],pend[0]);if(stop())return;
+        await Piper.put(pend[2],w);
+      }
+    }catch(e){if(!stop())this.set('err','Préparation interrompue : '+(e&&e.message||e),0,1);}
+  }
+};
+let engine=Engine,script=null,saveT=null,resumeAt=0,startFrom=0;
 const vidx=(id,fb)=>{const j=voices.findIndex(v=>v.id===id);return j<0?fb:j;};
 /* voix par défaut : on répartit les personnages sur les meilleures voix seulement */
 const autoV=i=>{if(!voices.length)return 0;const m=Math.max(1,voices.filter(v=>v.q>=voices[0].q-15).length);return i%m;};
@@ -692,7 +847,7 @@ $('#resume').onclick=()=>{startFrom=resumeAt;$('#start').click();};
 renderLib();
 
 /* ---------- Paramètres (communs à tous les scripts, enregistrés dans ce navigateur) ---------- */
-const SETDEF={endSent:1.35,endRep:0.5,turnStart:0.35,clickJump:true,ui:100,txt:60,ptx:70,bt:100,bn:100,bp:100,font:'default',shown:10,ahead:false,place:'bottom'},SETRNG={endSent:[.5,2],endRep:[.1,2],turnStart:[.1,.5],shown:[2,21],ui:[30,140],txt:[20,200],ptx:[20,140],bt:[60,160],bn:[60,160],bp:[60,160]},SETENUM={place:['top','center','bottom'],font:['default','arial','helvetica','verdana','trebuchet']},UIFONTS={default:null,arial:'Arial,"Liberation Sans",sans-serif',helvetica:'"Helvetica Neue",Helvetica,Arial,sans-serif',verdana:'Verdana,"DejaVu Sans",sans-serif',trebuchet:'"Trebuchet MS","Lucida Grande",sans-serif'};
+const SETDEF={piper:false,piperGo:false,endSent:1.35,endRep:0.5,turnStart:0.35,clickJump:true,ui:100,txt:60,ptx:70,bt:100,bn:100,bp:100,font:'default',shown:10,ahead:false,place:'bottom'},SETRNG={endSent:[.5,2],endRep:[.1,2],turnStart:[.1,.5],shown:[2,21],ui:[30,140],txt:[20,200],ptx:[20,140],bt:[60,160],bn:[60,160],bp:[60,160]},SETENUM={place:['top','center','bottom'],font:['default','arial','helvetica','verdana','trebuchet']},UIFONTS={default:null,arial:'Arial,"Liberation Sans",sans-serif',helvetica:'"Helvetica Neue",Helvetica,Arial,sans-serif',verdana:'Verdana,"DejaVu Sans",sans-serif',trebuchet:'"Trebuchet MS","Lucida Grande",sans-serif'};
 /* réglages d’interface par défaut sur mobile (écran étroit ou tactile) ; l’ordinateur garde les valeurs ci-dessus */
 try{if(matchMedia('(max-width:700px)').matches||matchMedia('(pointer:coarse)').matches)Object.assign(SETDEF,{ui:60,txt:70,ptx:80,bt:100,bn:115,bp:100});}catch(e){}
 let settings=Object.assign({},SETDEF);
@@ -704,7 +859,7 @@ const saveSet=()=>{try{localStorage.setItem('repete:settings',JSON.stringify(set
 const secFmt=v=>(+v).toFixed(2).replace('.',',')+' s';
 const shownFmt=v=>+v>=21?'Toutes':String(v);
 const applyUi=()=>{const r=document.documentElement.style,f=UIFONTS[settings.font];r.setProperty('--ui',settings.ui/100);r.setProperty('--tx',settings.txt/100);r.setProperty('--tp',settings.ptx/100);r.setProperty('--bt',settings.bt/100);r.setProperty('--bn',settings.bn/100);r.setProperty('--bp',settings.bp/100);if(f){r.setProperty('--fh',f);r.setProperty('--fb',f);}else{r.removeProperty('--fh');r.removeProperty('--fb');}};
-function syncSet(){['bt','bn','bp'].forEach(k=>{$('#k_'+k).value=settings[k];$('#o_'+k).textContent=settings[k]+' %';});$('#k_txt').value=settings.txt;$('#o_txt').textContent=settings.txt+' %';$('#k_ptx').value=settings.ptx;$('#o_ptx').textContent=settings.ptx+' %';try{refreshBk();}catch(e){}$('#k_font').value=settings.font;$('#k_ui').value=settings.ui;$('#o_ui').textContent=settings.ui+' %';applyUi();$('#k_clickJump').checked=!!settings.clickJump;$('#k_ahead').checked=!!settings.ahead;$('#k_place').value=settings.place;$('#k_shown').value=settings.shown;$('#o_shown').textContent=shownFmt(settings.shown);document.querySelectorAll('#settings input[data-k]').forEach(i=>{i.value=settings[i.dataset.k];$('#o_'+i.dataset.k).textContent=secFmt(settings[i.dataset.k]);});}
+function syncSet(){['bt','bn','bp'].forEach(k=>{$('#k_'+k).value=settings[k];$('#o_'+k).textContent=settings[k]+' %';});$('#k_txt').value=settings.txt;$('#o_txt').textContent=settings.txt+' %';$('#k_ptx').value=settings.ptx;$('#o_ptx').textContent=settings.ptx+' %';try{refreshBk();}catch(e){}$('#k_font').value=settings.font;$('#k_ui').value=settings.ui;$('#o_ui').textContent=settings.ui+' %';applyUi();$('#k_clickJump').checked=!!settings.clickJump;$('#k_piper').checked=!!settings.piper;$('#k_ahead').checked=!!settings.ahead;$('#k_place').value=settings.place;$('#k_shown').value=settings.shown;$('#o_shown').textContent=shownFmt(settings.shown);document.querySelectorAll('#settings input[data-k]').forEach(i=>{i.value=settings[i.dataset.k];$('#o_'+i.dataset.k).textContent=secFmt(settings[i.dataset.k]);});}
 function openTab(t){document.querySelectorAll('#settings [role=tab]').forEach(b=>{const on=b.dataset.tab===t;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;});
   document.querySelectorAll('#settings [role=tabpanel]').forEach(p=>{p.hidden=p.id!=='pan-'+t;});}
 $('#gear').onclick=()=>{syncSet();const d=$('#settings');if(d.showModal)d.showModal();else d.setAttribute('open','');};
@@ -725,8 +880,17 @@ const redraw=()=>{if(!$('#s3').hidden&&cues.length)render();};
 $('#k_shown').addEventListener('input',e=>{settings.shown=+e.target.value;$('#o_shown').textContent=shownFmt(settings.shown);saveSet();redraw();});
 $('#k_ahead').onchange=e=>{settings.ahead=e.target.checked;saveSet();redraw();};
 $('#k_place').onchange=e=>{settings.place=e.target.value;saveSet();redraw();};
+$('#k_piper').onchange=e=>{
+  settings.piper=piperOn=e.target.checked;saveSet();
+  if(piperOn){delete dirv.vid;Object.keys(chars).forEach(k=>{delete chars[k].vid;});}   /* à l’activation : répartition automatique sur les meilleures voix */
+  loadVoices();Voices.draw();if(piperOn&&settings.piperGo)Voices.run().catch(()=>{});Prep.refresh();save();};
+$('#piperflush').onclick=async()=>{if(!confirm('Supprimer les voix Piper téléchargées et les répliques préparées ?'))return;Prep.tok++;await Piper.clear();settings.piperGo=false;saveSet();Voices.p=null;Voices.set('idle','',0,1);Prep.set('idle','',0,1);$('#piperst').textContent='Voix Piper supprimées.';};
+const goPiper=()=>{settings.piperGo=true;saveSet();Voices.run().catch(()=>{});Voices.draw();Prep.refresh();};
+$('#pgo').onclick=$('#pvgo').onclick=()=>{if(Voices.state==='err'||!settings.piperGo)goPiper();else{Voices.p=null;goPiper();}};
 $('#k_clickJump').onchange=e=>{settings.clickJump=e.target.checked;saveSet();if(!$('#s3').hidden&&cues.length)render();};
+piperOn=!!settings.piper;loadVoices();
 syncSet();
+Voices.draw();if(piperOn&&settings.piperGo)setTimeout(()=>Voices.run().catch(()=>{}),1500);
 
 /* ---------- Reconnaissance vocale (essai) ----------
    Même principe que le moteur de voix : un « Recognizer » interchangeable (aujourd’hui celui du navigateur ; plus tard celui du téléphone). */
@@ -1394,7 +1558,7 @@ function renderChars(){
   if(nd&&!gone.has('__dir'))addRow('__dir','Didascalies',nd,true);
   $('#charn').textContent='('+$('#chars').children.length+')';
   $('#start').disabled=$('#resume').disabled=!me;
-  voiceHint();
+  voiceHint();Prep.refresh();
 }
 $('#chars').addEventListener('change',e=>{
   const d=e.target.dataset,t=e.target;
@@ -1403,7 +1567,7 @@ $('#chars').addEventListener('change',e=>{
     if(t.value!=='keep')Object.keys(chars).forEach(o=>{if(chars[o].map===d.m)chars[o].map='keep';});
     rebuild();renderChars();}
   else if(d.d){dirv.ign=t.value==='ign';dirv.on=t.value==='on';rebuild();renderChars();if(!$('#s3').hidden&&cues.length)go(idx);}
-  else if(d.v){const o=obj(d.v);o.v=+t.value;o.vid=voices[o.v]&&voices[o.v].id;}
+  else if(d.v){const o=obj(d.v);o.v=+t.value;o.vid=voices[o.v]&&voices[o.v].id;Prep.schedule();}
   else if(d.vol)say(d.vol==='__dir'?SAMPLE_DIR:SAMPLE,d.vol);
 });
 $('#chars').addEventListener('input',e=>{const id=e.target.dataset.vol;if(id)obj(id).vol=+e.target.value;});
