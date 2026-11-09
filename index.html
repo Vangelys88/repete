@@ -277,6 +277,9 @@ body.reh #s3>.row>#restart{background:#fff;border-color:#d3d5e0;color:#1b1830}
 body.reh #gear2 svg{width:20px;height:20px;display:block}
 body.reh #stage{flex:1 1 auto;height:auto;min-height:80px;padding-bottom:calc(var(--pb,160px) + var(--rh,56px))}
 body.reh #s3>.row{position:fixed;left:0;right:0;bottom:calc(var(--pb,160px) - 8px);width:auto;max-width:none;margin:0;padding:8px 14px 6px;background:var(--bg);z-index:29;justify-content:center}
+body.reh #s3>.row .rn{display:contents}
+@media (min-width:395px){body.reh #s3>.row{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;justify-content:normal}body.reh #s3>.row>#prev{justify-self:end}body.reh #s3>.row .rn{display:flex;gap:6px;justify-self:start;align-items:center}body.reh #s3>.row>#prev,body.reh #s3>.row #next{padding-left:5px;padding-right:5px}body.reh #s3>.row>button,body.reh #s3>.row .rn>button{flex-shrink:0}}
+body.reh #s3>.row .rn>button{font-size:calc(.95rem*var(--bn,1));height:var(--rb);padding-top:0;padding-bottom:0}body.reh #s3>.row .rn>button.sq{width:var(--rb);padding:0;font-size:calc(1.4rem*var(--bn,1))}body.reh #s3>.row .rn>#restart{background:#fff;border-color:#d3d5e0;color:#1b1830}@media (max-width:480px){body.reh #s3>.row .rn>button{padding-left:8px;padding-right:8px;font-size:calc(.9rem*var(--bn,1));white-space:nowrap}body.reh #s3>.row .rn>button.sq{padding:0;font-size:calc(1.3rem*var(--bn,1))}}
 body.reh #s3>*{order:2}
 body.reh #s3>#rbar{order:0}
 body.reh #s3>#rline{order:1}
@@ -380,8 +383,8 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
     <div class="row">
       <button id="prev" aria-label="Réplique précédente">◀ Précédente</button>
       <button id="play" class="main">Pause</button>
-      <button id="next">Suivante ▶</button>
-      <button id="restart" class="sq" aria-label="Recommencer" title="Recommencer">↻</button>
+      <span class="rn"><button id="next">Suivante ▶</button>
+      <button id="restart" class="sq" aria-label="Recommencer" title="Recommencer">↻</button></span>
     </div>
   </section>
   </div>
@@ -529,7 +532,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché à la suite : v0.1.4.62 */
-const VERSION='0.2.0',BUILD=127;
+const VERSION='0.2.0',BUILD=128;
 const VFULL=VERSION+'.'+BUILD;$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+BUILD;document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
