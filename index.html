@@ -111,6 +111,7 @@ input[type=range]{accent-color:var(--acc)}
 .asrbox{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:.6em 0}
 .asrbox details{margin-top:8px}
 .asrbox{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:24px;align-items:start}
+.sl output{white-space:nowrap;flex:none}
 .asrhead{display:contents}
 .asrbox>details{grid-column:1;grid-row:2;margin-top:10px}
 .asrbox>details[open]{grid-column:1/-1}
@@ -373,6 +374,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
       <button role="tab" id="tab-bk" aria-controls="pan-bk" aria-selected="false" data-tab="bk" tabindex="-1">Sauvegarde</button>
     </div>
     <div role="tabpanel" id="pan-gen" aria-labelledby="tab-gen" class="pan">
+      <details class="sub" open><summary>Interface</summary>
       <details class="sub" open><summary>Interface générale</summary>
         <div class="sl"><label class="k" style="justify-content:space-between;display:flex" for="k_font">Police de l’interface
           <select id="k_font"><option value="default">Par défaut</option><option value="arial">Arial</option><option value="helvetica">Helvetica Neue</option><option value="verdana">Verdana</option><option value="trebuchet">Trebuchet MS</option></select></label>
@@ -380,11 +382,12 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
         <div class="sl"><label for="k_ui">Taille de la police <output id="o_ui"></output></label>
           <input type="range" id="k_ui" min="30" max="140" step="5">
           <p class="tip">Agrandit ou réduit les boutons, menus et textes de l’interface (le texte de répétition n’est pas touché).</p></div>
-        <details class="sub" open><summary>Taille des répliques</summary>
-          <div class="sl"><label for="k_txt">Texte de la zone de répétition <output id="o_txt"></output></label>
+      </details>
+        <details class="sub" open><summary>Interface écran réplique</summary>
+          <div class="sl"><label for="k_txt">Taille de la police (zone de dialogue) <output id="o_txt"></output></label>
             <input type="range" id="k_txt" min="20" max="200" step="5">
             <p class="tip">Taille des répliques qui défilent pendant la répétition.</p></div>
-          <div class="sl"><label for="k_ptx">Volet « Ta prochaine réplique » <output id="o_ptx"></output></label>
+          <div class="sl"><label for="k_ptx">Taille de la police (volet « Ta prochaine réplique ») <output id="o_ptx"></output></label>
             <input type="range" id="k_ptx" min="20" max="140" step="5">
             <p class="tip">Taille du texte et des boutons du volet du bas.</p></div>
         </details>
@@ -469,9 +472,9 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
     <div class="hd"><span>Ta prochaine réplique</span>
       <span>
         <button id="hide" aria-pressed="false">Masquer</button>
-        <button id="peek" title="Affiche les mots de ta réplique un par un, un de plus à chaque appui">Indice</button>
-        <button id="hint" title="Lit les premiers mots, trois de plus à chaque appui">Souffler</button>
         <button id="hear" title="Écoute la réplique entière, ou le texte sélectionné">Écouter</button>
+        <button id="hint" title="Lit les premiers mots, trois de plus à chaque appui">Souffler</button>
+        <button id="peek" title="Affiche les mots de ta réplique un par un, un de plus à chaque appui">Indice</button>
       </span></div>
     <p id="ptxt"></p>
     <p class="tip" id="heard"></p>
@@ -483,7 +486,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché à la suite : v0.1.4.62 */
-const VERSION='0.2.0',BUILD=87;
+const VERSION='0.2.0',BUILD=89;
 const VFULL=VERSION+'.'+BUILD;$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+BUILD;document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
