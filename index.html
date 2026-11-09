@@ -106,6 +106,8 @@ input[type=range]{accent-color:var(--acc)}
 .jump .cue{cursor:pointer}
 .jump .cue:hover{background:color-mix(in srgb,var(--c) 16%,var(--panel))}
 .cue .rid{font-style:normal;font-weight:500;opacity:.6;margin-left:6px}
+.asrline{white-space:nowrap;margin:0;align-items:center}
+.asrline input{margin:0;flex:none}
 .asrbox{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:.6em 0}
 .asrbox details{margin-top:8px}
 .asrbox summary{cursor:pointer;font-size:.9rem;color:var(--mute)}
@@ -317,13 +319,13 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
     <div class="row"><label class="k" style="flex:1">Position <input type="range" id="pos" min="0" value="0" style="flex:1"></label></div>
     <div class="row"><label class="k">Vitesse <input type="range" id="rate2" min="0.5" max="1.3" step="0.05" value="1"><output id="rv2">1,00×</output></label></div>
     <div class="asrbox">
-      <label class="k"><input type="checkbox" id="asr"> <b>Reconnaissance vocale</b> <small>(essai)</small></label>
+      <label class="k asrline"><input type="checkbox" id="asr"><b>Reconnaissance vocale</b></label>
       <details id="asropts">
         <summary>Tolérance : <b id="asrname"></b> · réglages</summary>
         <fieldset id="asrmodes"><legend>Tolérance de la reconnaissance vocale</legend></fieldset>
         <div class="asrbeh"><h4>Comportement recherché</h4><p id="asrbeh"></p></div>
         <label class="k" style="margin-top:12px">Affichage des mots
-          <select id="wordview" aria-label="Où afficher les mots validés"><option value="both" selected>Partout</option><option value="bas">Panneau du bas</option><option value="scene">Zone de répétition</option></select></label>
+          <select id="wordview" aria-label="Où afficher les mots validés"><option value="both" selected>Partout</option><option value="bas">Panneau du bas</option><option value="scene">Zone de répétition</option><option value="none">Sans affichage</option></select></label>
       </details>
     </div>
     <p class="tip" id="asrnote"></p>
@@ -454,7 +456,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché à la suite : v0.1.4.62 */
-const VERSION='0.2.0',BUILD=72;
+const VERSION='0.2.0',BUILD=74;
 const VFULL=VERSION+'.'+BUILD;$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+BUILD;document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
@@ -877,8 +879,8 @@ function paintHeard(box,list){
 }
 function paintAll(J){
   const mode=$('#wordview').value;
-  document.querySelectorAll('#ptxt .w').forEach(sp=>setWord(sp,mode==='scene'?'pending':(J.expSt[+sp.dataset.i]||'pending')));
-  if(hwBox)paintHeard(hwBox,mode==='bas'?[]:J.heard);
+  document.querySelectorAll('#ptxt .w').forEach(sp=>setWord(sp,(mode==='scene'||mode==='none')?'pending':(J.expSt[+sp.dataset.i]||'pending')));
+  if(hwBox)paintHeard(hwBox,(mode==='bas'||mode==='none')?[]:J.heard);
   followWord();
 }
 /* réplique plus longue que le panneau : on fait défiler le panneau (et lui seul) pour garder le mot en cours en vue */
@@ -1011,7 +1013,7 @@ function listenStart(c){
 }
 $('#asr').disabled=!Recognizer.ok;
 $('#asrnote').textContent=Recognizer.ok?
-  "À ton tour, l’appli t’écoute phrase par phrase : chaque phrase validée est verrouillée (point de contrôle), et elle passe à la suite quand toute ta réplique est validée. Les mots reconnus s’affichent en cyan quand ils sont justes et en magenta sinon ; si tu reprends ta phrase depuis le début, l’appli rejuge à partir de là. « Suivante » reste toujours disponible. Avec le micro du navigateur, l’audio est en général traité par un serveur distant (Google, Microsoft ou Apple selon le navigateur).":
+  "À ton tour, l’appli t’écoute phrase par phrase : chaque phrase validée est verrouillée (point de contrôle), et elle passe à la suite quand toute ta réplique est validée.":
   "Ce navigateur ne propose pas la reconnaissance vocale (essaie Chrome ou Edge).";
 $('#asr').onchange=e=>{asrOn=e.target.checked;if(!asrOn){listenStop();$('#heard').textContent='';}
   else if(playing&&cues[idx]&&cues[idx].k===me)listenStart(cues[idx]);save();};
