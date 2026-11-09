@@ -554,7 +554,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché sur 4 chiffres : v0.2.1.0132 */
-const VERSION='0.2.1',BUILD=146;
+const VERSION='0.2.1',BUILD=147;
 const VFULL=VERSION+'.'+String(BUILD).padStart(4,'0');$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+String(BUILD).padStart(4,'0');document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
@@ -957,11 +957,13 @@ $('#k_ahead').onchange=e=>{settings.ahead=e.target.checked;saveSet();redraw();};
 $('#k_place').onchange=e=>{settings.place=e.target.value;saveSet();redraw();};
 $('#pvdl').onclick=()=>{settings.piper=piperOn=true;settings.piperGo=true;saveSet();loadVoices();Voices.run(true).catch(()=>{});};
 $('#pvdel').onclick=async()=>{
-  if(!confirm('Supprimer les voix Piper téléchargées et les répliques préparées ? Elles ne seront plus téléchargées au lancement (bouton « Télécharger » pour les remettre).'))return;
-  Prep.abort();await Piper.clear();settings.piper=piperOn=false;settings.piperGo=false;saveSet();
+  if(!confirm('Supprimer les voix Piper téléchargées et les répliques préparées ? Elles seront automatiquement retéléchargées au prochain lancement de l’appli.'))return;
+  Prep.abort();await Piper.clear();Piper.bad.clear();
   try{localStorage.removeItem('repete:pstored');}catch(e){}
-  Voices.p=null;loadVoices();Voices.set('idle','Voix Piper supprimées.',0,1);};
+  Voices.p=null;Voices.set('idle','Voix Piper supprimées : elles seront retéléchargées au prochain lancement de l’appli (ou tout de suite avec « Télécharger »).',0,1);};
 $('#k_clickJump').onchange=e=>{settings.clickJump=e.target.checked;saveSet();if(!$('#s3').hidden&&cues.length)render();};
+/* migration : l’ancienne suppression désactivait le téléchargement automatique ; il est désormais toujours actif */
+try{if(!localStorage.getItem('repete:pmig2')){settings.piper=true;settings.piperGo=true;saveSet();localStorage.setItem('repete:pmig2','1');}}catch(e){}
 piperOn=!!settings.piper;loadVoices();
 syncSet();
 
