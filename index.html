@@ -173,13 +173,13 @@ input[type=text]{font:inherit;font-size:.95rem;background:var(--bg);color:var(--
 #libl li:first-child{border-top:0}
 #libl .nm{font-weight:600;overflow-wrap:anywhere}
 #libl .acts{display:flex;gap:10px;justify-content:flex-end}
-#libl button:not(.del){flex:0 0 89px}
+#libl button:not(.del){flex:1 1 0}
 #libl .nm small{display:block;color:var(--mute);font-weight:400;font-size:.8rem}
 #libl button{box-sizing:border-box}
 #libl button.del.armed{background:#e5484d;border-color:#c93a3f;color:#fff}
-#libl button.del{flex:0 0 66px;display:inline-flex;align-items:center;justify-content:center;padding:6px 0}
-#libl button.del svg{width:1.3rem;height:1.3rem}
-#libl button{flex:1 1 0;min-width:0;padding:6px 14px;font-size:1.07rem;white-space:nowrap;text-align:center}
+#libl button.del{flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;padding:6px 0}
+#libl button.del svg{width:1.3rem;height:1.3rem;margin-left:.45rem}
+#libl button{flex:1 1 0;min-width:0;padding:6px 0;font-size:1.07rem;white-space:nowrap;text-align:center}
 #heard{min-height:1.3em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root{--ok:#0e9f89;--bad:#d41a68}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ok:#3ee6c8;--bad:#ff5c95}}
@@ -525,7 +525,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché à la suite : v0.1.4.62 */
-const VERSION='0.2.0',BUILD=119;
+const VERSION='0.2.0',BUILD=121;
 const VFULL=VERSION+'.'+BUILD;$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+BUILD;document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
@@ -652,7 +652,7 @@ function renderLib(){
   $('#libnone').hidden=!Store.ok||ix.length>0;$('#libn').textContent=ix.length?'('+ix.length+')':'';
   $('#libnote').textContent=Store.ok?'Enregistrés automatiquement, avec leurs réglages, sur cet appareil et dans ce navigateur uniquement.':'La sauvegarde est indisponible dans ce navigateur (navigation privée ?).';
   ix.forEach(x=>{
-    const li=el('li'),o=el('button',{className:'main'},'Ouvrir'),d=el('button',{className:'del',title:'Supprimer ce script',ariaLabel:'Supprimer le script '+x.title});d.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v5M14 11v5"/></svg>';
+    const li=el('li'),o=el('button',{className:'main'},'Ouvrir'),d=el('button',{className:'del',title:'Supprimer ce script',ariaLabel:'Supprimer le script '+x.title});d.innerHTML='Suppr.<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v5M14 11v5"/></svg>';
     o.dataset.o=x.id;d.dataset.x=x.id;
     li.append(el('span',{className:'nm'},x.title,el('small',{},new Date(x.updated).toLocaleDateString('fr-FR')+' · '+x.n+' répliques')),el('div',{className:'acts'},o,d));
     ul.append(li);
