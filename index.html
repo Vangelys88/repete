@@ -534,7 +534,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché sur 4 chiffres : v0.2.1.0132 */
-const VERSION='0.2.1',BUILD=137;
+const VERSION='0.2.1',BUILD=138;
 const VFULL=VERSION+'.'+String(BUILD).padStart(4,'0');$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+String(BUILD).padStart(4,'0');document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
@@ -690,6 +690,8 @@ renderLib();
 
 /* ---------- Paramètres (communs à tous les scripts, enregistrés dans ce navigateur) ---------- */
 const SETDEF={endSent:1.35,endRep:0.5,turnStart:0.35,clickJump:true,ui:100,txt:60,ptx:70,bt:100,bn:100,bp:100,font:'default',shown:10,ahead:false,place:'bottom'},SETRNG={endSent:[.5,2],endRep:[.1,2],turnStart:[.1,.5],shown:[2,21],ui:[30,140],txt:[20,200],ptx:[20,140],bt:[60,160],bn:[60,160],bp:[60,160]},SETENUM={place:['top','center','bottom'],font:['default','arial','helvetica','verdana','trebuchet']},UIFONTS={default:null,arial:'Arial,"Liberation Sans",sans-serif',helvetica:'"Helvetica Neue",Helvetica,Arial,sans-serif',verdana:'Verdana,"DejaVu Sans",sans-serif',trebuchet:'"Trebuchet MS","Lucida Grande",sans-serif'};
+/* réglages d’interface par défaut sur mobile (écran étroit ou tactile) ; l’ordinateur garde les valeurs ci-dessus */
+try{if(matchMedia('(max-width:700px)').matches||matchMedia('(pointer:coarse)').matches)Object.assign(SETDEF,{ui:60,txt:70,ptx:80,bt:100,bn:115,bp:100});}catch(e){}
 let settings=Object.assign({},SETDEF);
 try{const v=JSON.parse(localStorage.getItem('repete:settings')||'null');
   if(v)Object.keys(SETDEF).forEach(k=>{if(typeof SETDEF[k]==='boolean'){if(typeof v[k]==='boolean')settings[k]=v[k];}
