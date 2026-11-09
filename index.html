@@ -38,7 +38,7 @@ select{font:inherit;font-size:.85rem;max-width:100%;background:var(--bg);color:v
 #chars li{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
 #chars li:first-child{border-top:0}
 #chars .nm{flex:1 1 150px;font-weight:600}
-#chars .nm small{color:var(--mute);font-weight:400}
+#chars .nm small{color:var(--mute);font-weight:400;white-space:nowrap}
 #chars button{padding:5px 10px}
 #chars input[type=range]{width:72px}
 label.k{font-size:.9rem;display:flex;gap:6px;align-items:center}
@@ -89,7 +89,7 @@ input[type=range]{accent-color:var(--acc)}
   #chars .acts{grid-column:4;flex-wrap:wrap;justify-content:flex-end;gap:8px}
   #chars .ctl{grid-column:1/-1;align-self:stretch;justify-self:stretch;align-items:stretch;width:100%}
   #chars .sels{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
-  #chars .sels select{width:100%;min-width:0}
+  #chars .sels select{width:100%;min-width:0;box-sizing:border-box}
 }
 /* Boutons d'action d'une ligne : une seule variable de hauteur pilote Écouter, Modifier et Supprimer ; la largeur de chacun a sa propre variable */
 #chars{--rowbtn-h:34px;--listen-w:78px;--iconbtn-w:51px}
@@ -110,6 +110,17 @@ input[type=range]{accent-color:var(--acc)}
 .asrline input{margin:0;flex:none}
 .asrbox{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:.6em 0}
 .asrbox details{margin-top:8px}
+.asrbox{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:24px;align-items:start}
+.asrhead{display:contents}
+.asrbox>details{grid-column:1;grid-row:2;margin-top:10px}
+.asrbox>details[open]{grid-column:1/-1}
+#asrnote{grid-column:2;grid-row:1/3}
+.asrbox:has(>details[open]) #asrnote{grid-row:1}
+.asrhead .asrline{line-height:1;align-self:flex-start;position:relative;left:-2px;top:4px}
+.asrhead .asrline b{display:block;line-height:1}
+#asrnote{white-space:pre-line;flex:1;margin:0;font-size:.74rem;line-height:1.3;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--bg);text-align:left}
+.asrsep{border:0;border-top:1px solid var(--line);margin:10px -14px 0}
+@media (max-width:480px){.asrbox{grid-template-columns:minmax(0,1fr);row-gap:8px}.asrbox>details,.asrbox>details[open]{grid-column:1;grid-row:3;margin-top:0}#asrnote,.asrbox:has(>details[open]) #asrnote{grid-column:1;grid-row:2}}
 .asrbox summary{cursor:pointer;font-size:.9rem;color:var(--mute)}
 .asrbox summary b{color:var(--ink)}
 #asrmodes{border:0;padding:0;margin:12px 0 0;display:grid;gap:8px}
@@ -202,12 +213,17 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .msep h3{font:600 .95rem var(--fh);margin:0 0 4px}
 .sl label{display:flex;justify-content:space-between;font:600 .95rem var(--fh)}
 .sl input[type=range]{width:100%;margin:6px 0 0}
-@media (max-width:600px){dialog,#settings{width:100vw;height:100vh;max-height:100vh;margin:0;border-radius:0;border:0}}
+@media (max-width:600px){
+  dialog,#settings{width:100vw;max-width:none;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;margin:0;border-radius:0;border:0;overflow-x:hidden}   /* max-width:none : annule la marge que le navigateur ajoute aux fenêtres modales */
+  .tabs{gap:2px;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs button{flex:none;white-space:nowrap;padding:8px 7px;font-size:.8rem}
+}
 [hidden]{display:none!important}
 #s3 .row{justify-content:center}
 #s3 .row .k{justify-content:center}
 body.reh #s3>*{width:100%;max-width:720px;margin-left:auto;margin-right:auto}
-body.reh #s3>#rbar{max-width:none}
+body.reh #s3>#rbar,body.reh #s3>#rline{max-width:none}
 @keyframes pfin{from{opacity:0;filter:blur(9px);transform:translateY(2px)}to{opacity:1;filter:blur(0);transform:none}}
 @media (prefers-reduced-motion:no-preference){.pfnew{animation:pfin 1.1s cubic-bezier(.2,.7,.2,1) both}}
 #prompter #hear,#prompter #hint,#prompter #peek{background:#ffd9a3;border-color:#f0c07a;color:#2a1a00}
@@ -228,15 +244,27 @@ body.reh{overflow:hidden}
 body.reh .top,body.reh #back,body.reh #s2,body.reh #s2a,body.reh #s3h{display:none}
 body.reh main{padding:0;max-width:none}
 body.reh #s3{position:fixed;inset:0;z-index:20;margin:0;border:0;border-radius:0;display:flex;flex-direction:column;padding:8px 14px var(--pb,160px);background:var(--bg);overflow:hidden}
-body.reh #rbar{display:flex;align-items:center;gap:10px;padding:2px 0 8px}
-body.reh #rbar #rtitle{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mute);font:600 .9rem var(--fh);text-align:center}
+body.reh #rbar{display:flex;align-items:center;gap:10px;padding:0 0 4px}
+body.reh #rbar #rtitle{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);font:600 1.2rem var(--fh);text-align:center}
 body.reh #rbar button{padding:6px 12px}
+button.sq{padding:0;width:44px;height:44px;font-size:1.5rem;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+@media (max-width:480px){body.reh #s3>.row:not(.asr){gap:6px;flex-wrap:nowrap}body.reh #s3>.row>button{padding:9px 8px;font-size:.9rem;white-space:nowrap}body.reh #s3>.row>button.sq{width:40px;height:40px;padding:0;font-size:1.4rem}}
 body.reh #gear2 svg{width:20px;height:20px;display:block}
-body.reh #status{margin-top:0;margin-bottom:6px}
 body.reh #stage{flex:1 1 auto;height:auto;min-height:80px}
 body.reh #s3>.row{flex:none;margin-top:8px}
-body.reh #more{flex:none}
-body.reh #more[open] #morein{position:fixed;left:14px;right:14px;top:54px;max-width:720px;margin:0 auto;z-index:25;max-height:max(120px,calc(100dvh - var(--pb,160px) - 250px));overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 14px 10px;box-shadow:0 8px 28px rgba(0,0,0,.28)}
+body.reh #s3>*{order:2}
+body.reh #s3>#rbar{order:0}
+body.reh #s3>#rline{order:1}
+body.reh #rline{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;position:relative;z-index:25;flex:none;margin-bottom:4px;min-height:30px}
+body.reh #rline #status{margin:0;grid-column:1;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 .9rem var(--fh);color:var(--ink)}
+body.reh #rline #more{grid-column:2;position:static}
+@media (max-width:640px){body.reh #rline{grid-template-columns:minmax(0,1fr) auto}}
+body.reh #more>summary{cursor:pointer;margin:0;padding:6px 4px;color:var(--mute);font:600 .8rem var(--fh);text-align:center;list-style:none;white-space:nowrap}
+body.reh #more>summary i{font-style:normal;font-size:.75em;display:inline-block;transition:transform .15s}
+body.reh #more[open]>summary i:first-child{transform:rotate(90deg)}
+body.reh #more[open]>summary i:last-child{transform:rotate(-90deg)}
+body.reh #more>summary::-webkit-details-marker{display:none}
+body.reh #more[open] #morein{position:absolute;left:0;right:0;top:100%;margin-top:2px;z-index:25;max-height:max(120px,calc(100dvh - var(--pb,160px) - 290px));overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;padding:6px 14px 10px;box-shadow:0 8px 28px rgba(0,0,0,.28)}
 body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 @media (prefers-reduced-motion:no-preference){.cue.cur{transition:background .2s}}
 </style>
@@ -306,32 +334,31 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
   <section id="s3" hidden>
     <div id="rbar"><button id="rexit" aria-label="Quitter la répétition">✕ Quitter</button><span id="rtitle"></span><button id="gear2" aria-label="Paramètres" title="Paramètres"></button></div>
     <h2 id="s3h">Répétition</h2>
-    <p id="status" aria-live="polite"></p>
-    <div id="stage"></div>
-    <div class="row">
-      <button id="prev" aria-label="Réplique précédente">◀ Précédente</button>
-      <button id="play" class="main">Pause</button>
-      <button id="next">Suivante ▶</button>
-      <button id="restart">Recommencer</button>
-    </div>
-    <details id="more" open><summary>Position, vitesse, reconnaissance vocale</summary>
+    <div id="rline"><p id="status" aria-live="polite"></p>
+    <details id="more" open><summary><i>▸</i> Timeline / Reconnaissance vocale <i>◂</i></summary>
     <div id="morein">
     <div class="row"><label class="k" style="flex:1">Position <input type="range" id="pos" min="0" value="0" style="flex:1"></label></div>
     <div class="row"><label class="k">Vitesse <input type="range" id="rate2" min="0.5" max="1.3" step="0.05" value="1"><output id="rv2">1,00×</output></label></div>
     <div class="asrbox">
-      <label class="k asrline"><input type="checkbox" id="asr"><b>Reconnaissance vocale</b></label>
+      <div class="asrhead"><label class="k asrline"><input type="checkbox" id="asr"><b>Reconnaissance vocale</b></label><p class="tip" id="asrnote"></p></div>
       <details id="asropts">
         <summary>Tolérance : <b id="asrname"></b> · réglages</summary>
-        <fieldset id="asrmodes"><legend>Tolérance de la reconnaissance vocale</legend></fieldset>
+        <hr class="asrsep"><fieldset id="asrmodes"><legend>Tolérance de la reconnaissance vocale</legend></fieldset>
         <div class="asrbeh"><h4>Comportement recherché</h4><p id="asrbeh"></p></div>
         <label class="k" style="margin-top:12px">Affichage des mots
           <select id="wordview" aria-label="Où afficher les mots validés"><option value="both" selected>Partout</option><option value="bas">Panneau du bas</option><option value="scene">Zone de répétition</option><option value="none">Sans affichage</option></select></label>
       </details>
     </div>
-    <p class="tip" id="asrnote"></p>
-    <p class="lead" style="margin-bottom:0">Quand c’est ton tour, dis ta réplique à voix haute, puis appuie sur « Suivante » ou sur la flèche droite.</p>
     </div>
     </details>
+</div>
+    <div id="stage"></div>
+    <div class="row">
+      <button id="prev" aria-label="Réplique précédente">◀ Précédente</button>
+      <button id="play" class="main">Pause</button>
+      <button id="next">Suivante ▶</button>
+      <button id="restart" class="sq" aria-label="Recommencer" title="Recommencer">↻</button>
+    </div>
   </section>
   </div>
 </main>
@@ -341,18 +368,26 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
     <div class="shead"><h2 id="settitle">Paramètres</h2><button id="setclose" aria-label="Fermer">✕</button></div>
     <div class="tabs" role="tablist" aria-label="Catégories de paramètres">
       <button role="tab" id="tab-gen" aria-controls="pan-gen" aria-selected="true" data-tab="gen">Général</button>
-      <button role="tab" id="tab-rep" aria-controls="pan-rep" aria-selected="false" data-tab="rep" tabindex="-1">Répliques</button>
+      <button role="tab" id="tab-rep" aria-controls="pan-rep" aria-selected="false" data-tab="rep" tabindex="-1">Écran réplique</button>
       <button role="tab" id="tab-voc" aria-controls="pan-voc" aria-selected="false" data-tab="voc" tabindex="-1">Mode vocal</button>
       <button role="tab" id="tab-bk" aria-controls="pan-bk" aria-selected="false" data-tab="bk" tabindex="-1">Sauvegarde</button>
     </div>
     <div role="tabpanel" id="pan-gen" aria-labelledby="tab-gen" class="pan">
-      <details class="sub" open><summary>Interface</summary>
+      <details class="sub" open><summary>Interface générale</summary>
         <div class="sl"><label class="k" style="justify-content:space-between;display:flex" for="k_font">Police de l’interface
           <select id="k_font"><option value="default">Par défaut</option><option value="arial">Arial</option><option value="helvetica">Helvetica Neue</option><option value="verdana">Verdana</option><option value="trebuchet">Trebuchet MS</option></select></label>
           <p class="tip">Change la police des boutons, menus et textes de l’interface (si elle est installée sur ton appareil, sinon une police voisine est utilisée). Le texte de la zone de répétition et de « Ta prochaine réplique » ne change pas.</p></div>
         <div class="sl"><label for="k_ui">Taille de la police <output id="o_ui"></output></label>
           <input type="range" id="k_ui" min="30" max="140" step="5">
           <p class="tip">Agrandit ou réduit les boutons, menus et textes de l’interface (le texte de répétition n’est pas touché).</p></div>
+        <details class="sub" open><summary>Taille des répliques</summary>
+          <div class="sl"><label for="k_txt">Texte de la zone de répétition <output id="o_txt"></output></label>
+            <input type="range" id="k_txt" min="20" max="200" step="5">
+            <p class="tip">Taille des répliques qui défilent pendant la répétition.</p></div>
+          <div class="sl"><label for="k_ptx">Volet « Ta prochaine réplique » <output id="o_ptx"></output></label>
+            <input type="range" id="k_ptx" min="20" max="140" step="5">
+            <p class="tip">Taille du texte et des boutons du volet du bas.</p></div>
+        </details>
       </details>
     </div>
     <div role="tabpanel" id="pan-rep" aria-labelledby="tab-rep" class="pan" hidden>
@@ -366,14 +401,6 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
           <p class="tip">Nombre de répliques visibles jusqu’à la réplique en cours (de 2 à 20, ou toutes). Les plus anciennes restent accessibles en faisant défiler la zone. Sur un très long script, « Toutes » alourdit légèrement l’affichage.</p></div>
         <div class="sl"><label class="k" style="justify-content:flex-start;display:flex"><input type="checkbox" id="k_ahead"> Afficher aussi les répliques à venir</label>
           <p class="tip">Les répliques de tes partenaires sont déjà présentes sous la réplique en cours (on peut faire défiler pour les lire). Les tiennes restent masquées. Le même nombre de répliques est affiché après la réplique en cours.</p></div>
-      </details>
-      <details class="sub" open><summary>Tailles</summary>
-        <div class="sl"><label for="k_txt">Texte de la zone de répétition <output id="o_txt"></output></label>
-          <input type="range" id="k_txt" min="60" max="200" step="5">
-          <p class="tip">Taille des répliques qui défilent pendant la répétition.</p></div>
-        <div class="sl"><label for="k_ptx">Volet « Ta prochaine réplique » <output id="o_ptx"></output></label>
-          <input type="range" id="k_ptx" min="40" max="140" step="5">
-          <p class="tip">Taille du texte et des boutons du volet du bas.</p></div>
       </details>
     </div>
     <div role="tabpanel" id="pan-voc" aria-labelledby="tab-voc" class="pan" hidden>
@@ -442,13 +469,13 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
     <div class="hd"><span>Ta prochaine réplique</span>
       <span>
         <button id="hide" aria-pressed="false">Masquer</button>
-        <button id="hear" title="Écoute la réplique entière, ou le texte sélectionné">Écouter</button>
-        <button id="hint" title="Lit les premiers mots, trois de plus à chaque appui">Souffler</button>
         <button id="peek" title="Affiche les mots de ta réplique un par un, un de plus à chaque appui">Indice</button>
+        <button id="hint" title="Lit les premiers mots, trois de plus à chaque appui">Souffler</button>
+        <button id="hear" title="Écoute la réplique entière, ou le texte sélectionné">Écouter</button>
       </span></div>
     <p id="ptxt"></p>
     <p class="tip" id="heard"></p>
-    <p class="tip">Écouter ne fait pas avancer la scène. Touche un passage pour l’entendre seul, ou sélectionne du texte puis « Écouter ».</p>
+    <p class="tip">Écouter ne fait pas avancer la scène.</p>
   </div>
 </div>
 
@@ -456,7 +483,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché à la suite : v0.1.4.62 */
-const VERSION='0.2.0',BUILD=74;
+const VERSION='0.2.0',BUILD=87;
 const VFULL=VERSION+'.'+BUILD;$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+BUILD;document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
@@ -611,7 +638,7 @@ $('#resume').onclick=()=>{startFrom=resumeAt;$('#start').click();};
 renderLib();
 
 /* ---------- Paramètres (communs à tous les scripts, enregistrés dans ce navigateur) ---------- */
-const SETDEF={endSent:1.35,endRep:0.5,turnStart:0.35,clickJump:true,ui:100,txt:100,ptx:100,font:'default',shown:10,ahead:false,place:'bottom'},SETRNG={endSent:[.5,2],endRep:[.1,2],turnStart:[.1,.5],shown:[2,21],ui:[30,140],txt:[60,200],ptx:[40,140]},SETENUM={place:['top','center','bottom'],font:['default','arial','helvetica','verdana','trebuchet']},UIFONTS={default:null,arial:'Arial,"Liberation Sans",sans-serif',helvetica:'"Helvetica Neue",Helvetica,Arial,sans-serif',verdana:'Verdana,"DejaVu Sans",sans-serif',trebuchet:'"Trebuchet MS","Lucida Grande",sans-serif'};
+const SETDEF={endSent:1.35,endRep:0.5,turnStart:0.35,clickJump:true,ui:100,txt:60,ptx:70,font:'default',shown:10,ahead:false,place:'bottom'},SETRNG={endSent:[.5,2],endRep:[.1,2],turnStart:[.1,.5],shown:[2,21],ui:[30,140],txt:[20,200],ptx:[20,140]},SETENUM={place:['top','center','bottom'],font:['default','arial','helvetica','verdana','trebuchet']},UIFONTS={default:null,arial:'Arial,"Liberation Sans",sans-serif',helvetica:'"Helvetica Neue",Helvetica,Arial,sans-serif',verdana:'Verdana,"DejaVu Sans",sans-serif',trebuchet:'"Trebuchet MS","Lucida Grande",sans-serif'};
 let settings=Object.assign({},SETDEF);
 try{const v=JSON.parse(localStorage.getItem('repete:settings')||'null');
   if(v)Object.keys(SETDEF).forEach(k=>{if(typeof SETDEF[k]==='boolean'){if(typeof v[k]==='boolean')settings[k]=v[k];}
@@ -1013,7 +1040,7 @@ function listenStart(c){
 }
 $('#asr').disabled=!Recognizer.ok;
 $('#asrnote').textContent=Recognizer.ok?
-  "À ton tour, l’appli t’écoute phrase par phrase : chaque phrase validée est verrouillée (point de contrôle), et elle passe à la suite quand toute ta réplique est validée.":
+  "À ton tour, l’appli t’écoute phrase par phrase :\nChaque phrase validée est verrouillée (point de contrôle), et elle passe à la suite quand toute ta réplique est validée.":
   "Ce navigateur ne propose pas la reconnaissance vocale (essaie Chrome ou Edge).";
 $('#asr').onchange=e=>{asrOn=e.target.checked;if(!asrOn){listenStop();$('#heard').textContent='';}
   else if(playing&&cues[idx]&&cues[idx].k===me)listenStart(cues[idx]);save();};
