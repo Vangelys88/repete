@@ -534,7 +534,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché sur 4 chiffres : v0.2.1.0132 */
-const VERSION='0.2.1',BUILD=138;
+const VERSION='0.2.1',BUILD=139;
 const VFULL=VERSION+'.'+String(BUILD).padStart(4,'0');$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+String(BUILD).padStart(4,'0');document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
@@ -584,7 +584,7 @@ const WebSpeech={
       const nxt=async()=>{
         if(i>=parts.length||!alive())return res();
         const p=parts[i++].trim();if(!p)return nxt();
-        await new Promise(r=>setTimeout(r,i===1?80:0));
+        if(i===1&&(speechSynthesis.speaking||speechSynthesis.pending))await new Promise(r=>setTimeout(r,80));  /* inutile (et ça retarde) si rien n’est en cours */
         if(!alive())return res();
         let ok=await one(p);
         if(!ok&&alive()){speechSynthesis.cancel();await new Promise(r=>setTimeout(r,150));if(alive())ok=await one(p);if(!ok)console.warn('Synthèse vocale : lecture échouée',p);}
@@ -593,9 +593,12 @@ const WebSpeech={
       nxt();
     });
   },
-  stop(){if(this.ok)speechSynthesis.cancel();},
+  stop(){if(this.ok&&(speechSynthesis.speaking||speechSynthesis.pending||speechSynthesis.paused))speechSynthesis.cancel();},
+  /* échauffement : au premier appui, on réveille le moteur vocal d’Android avec une phrase muette → la première vraie voix part plus vite */
+  warm(){if(!this.ok||this.warmed)return;this.warmed=true;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='fr-FR';speechSynthesis.speak(u);}catch(e){}},
   onChange(cb){if(this.ok)speechSynthesis.onvoiceschanged=cb;}
 };
+addEventListener('pointerdown',()=>WebSpeech.warm(),{once:true,capture:true});
 let engine=WebSpeech,script=null,saveT=null,resumeAt=0,startFrom=0;
 const vidx=(id,fb)=>{const j=voices.findIndex(v=>v.id===id);return j<0?fb:j;};
 /* voix par défaut : on répartit les personnages sur les meilleures voix seulement */
