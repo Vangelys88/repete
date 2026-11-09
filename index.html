@@ -534,7 +534,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché sur 4 chiffres : v0.2.1.0132 */
-const VERSION='0.2.1',BUILD=139;
+const VERSION='0.2.1',BUILD=140;
 const VFULL=VERSION+'.'+String(BUILD).padStart(4,'0');$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+String(BUILD).padStart(4,'0');document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
@@ -1057,6 +1057,20 @@ function runEval(force){
   if(R.done)advT=setTimeout(()=>{if(L===T&&listening&&T.myTok===tok){scores.push(T.ratios.reduce((u,v)=>u+v,0)/Math.max(1,T.ratios.length));listenPause();go(idx+1);}},Math.round(settings.endRep*1000));
   else if(R.cand)T.lockT=setTimeout(()=>{if(L===T&&listening)runEval(true);},Math.round(settings.endSent*1000));
 }
+/* Écho des partenaires : le micro capte parfois la voix de synthèse avec du retard. On connaît ce qu’ils ont dit (les 3 dernières répliques d’autres personnages) :
+   si ce que « j’entends » COMMENCE par un morceau (≥ 3 mots, ou la réplique entière si elle est courte) de l’une d’elles, on l’écarte avant de juger ta réplique. */
+function echoLines(c){const o=[];for(let i=idx-1;i>=0&&o.length<3;i--){const q=cues[i];if(q&&q.k!==me&&!q.dir&&q!==c){const t=toks(q.text);if(t.length)o.push(t);}}return o;}
+function stripEcho(txt,echo){
+  if(!echo||!echo.length||!txt)return txt;
+  const ms=[...txt.matchAll(WRE)],n=ms.map(m=>nz(m[0]));let st=0,moved=true;
+  while(moved&&st<n.length){moved=false;let best=0;
+    for(const e of echo){const need=Math.min(3,e.length);
+      for(let k=Math.min(e.length,n.length-st);k>=need&&k>best;k--){
+        for(let j=0;j+k<=e.length;j++){let ok=true;for(let t=0;t<k;t++)if(n[st+t]!==e[j+t]){ok=false;break;}if(ok){best=k;break;}}
+        if(best===k)break;}}
+    if(best){st+=best;moved=true;}}
+  return st?ms.slice(st).map(m=>m[0]).join(' '):txt;
+}
 function listenStop(){listenPause();sess=false;Recognizer.stop();}
 function sessionOpen(){
   if(sess)return;sess=true;lastN=0;
@@ -1065,7 +1079,7 @@ function sessionOpen(){
       lastN=a.length;
       if(!L||!listening||L.myTok!==tok||L.skip===null)return;
       L.cur=a.slice(L.skip).join(' ').trim();
-      L.full=(L.base+' '+L.cur).trim();runEval(false);
+      L.full=stripEcho((L.base+' '+L.cur).trim(),L.echo);runEval(false);
     },
     end:()=>{
       sess=false;
@@ -1087,7 +1101,7 @@ function listenStart(c){
   listenPause();
   if(!asrOn||!Recognizer.ok||!playing)return;
   listening=true;$('#heard').textContent='🎤 Je t’écoute…';
-  const mine=L=Object.assign(newTurn(c.text),{myTok:tok,base:'',cur:'',full:'',skip:null,restarts:0});
+  const mine=L=Object.assign(newTurn(c.text),{myTok:tok,base:'',cur:'',full:'',skip:null,restarts:0,echo:echoLines(c)});
   setTimeout(()=>{
     if(L!==mine||!listening)return;
     if(sess)mine.skip=lastN;            /* on ignore ce que le micro a capté avant ton tour (voix des partenaires) */
