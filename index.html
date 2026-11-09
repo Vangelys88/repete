@@ -30,7 +30,7 @@ button,.btn{font-size:.95rem;font-weight:600;background:var(--panel);color:var(-
 label.btn{line-height:normal;display:inline-flex;align-items:center}
 button.main,.btn.main{background:var(--acc);color:var(--accink);border-color:var(--acc)}
 button:disabled{opacity:.45;cursor:not-allowed}
-#gorow{flex-wrap:nowrap}#gorow button{flex:1 1 0;min-width:0}#gorow #resume{background:#86e3dd;border-color:#5fc9c2;color:#12302e}#gorow #start{background:var(--sig);border-color:var(--sig);color:var(--sigink)}#savemsg{text-align:center}
+#gorow{flex-wrap:nowrap;align-items:stretch}#gorow button{flex:1 1 0;min-width:0}#gorow #resume{background:#86e3dd;border-color:#5fc9c2;color:#12302e}#gorow #start{background:var(--sig);border-color:var(--sig);color:var(--sigink)}#savemsg{text-align:center}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.btn:focus-within,.seg:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:.6em 0}
 textarea{width:100%;font:inherit;font-size:.95rem;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
@@ -533,7 +533,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché sur 4 chiffres : v0.2.1.0132 */
-const VERSION='0.2.1',BUILD=134;
+const VERSION='0.2.1',BUILD=135;
 const VFULL=VERSION+'.'+String(BUILD).padStart(4,'0');$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+String(BUILD).padStart(4,'0');document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
