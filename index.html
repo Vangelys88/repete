@@ -169,10 +169,10 @@ input[type=range]{accent-color:var(--acc)}
 .ver{font:600 .8rem var(--fh);letter-spacing:0;vertical-align:middle;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-left:6px}
 input[type=text]{font:inherit;font-size:.95rem;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-width:0}
 #libl{list-style:none;margin:0;padding:0}
-#libl li{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+#libl li{display:flex;flex-direction:column;gap:10px;align-items:stretch;padding:12px 0;border-top:1px solid var(--line)}
 #libl li:first-child{border-top:0}
-#libl .nm{flex:1 1 90px;font-weight:600}
-#libl .acts{display:flex;gap:10px;margin-left:auto;flex:none}
+#libl .nm{font-weight:600;overflow-wrap:anywhere}
+#libl .acts{display:flex;gap:10px;justify-content:flex-end}
 #libl button:not(.del){flex:0 0 89px}
 #libl .nm small{display:block;color:var(--mute);font-weight:400;font-size:.8rem}
 #libl button{box-sizing:border-box}
@@ -525,7 +525,7 @@ body.reh #prompter{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30}
 <script>
 const $=s=>document.querySelector(s);
 /* VERSION : numéro géré par l’utilisateur (ne change que sur sa demande). BUILD : compteur de Claude, incrémenté à chaque modification ; affiché à la suite : v0.1.4.62 */
-const VERSION='0.2.0',BUILD=118;
+const VERSION='0.2.0',BUILD=119;
 const VFULL=VERSION+'.'+BUILD;$('#ver').textContent='v'+VFULL;$('#ver').title='Version '+VERSION+' · build '+BUILD;document.title='Répète v'+VFULL+' – ton partenaire de réplique';
 const fmt=v=>(+v).toFixed(2).replace('.',',')+'×';
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e;};
